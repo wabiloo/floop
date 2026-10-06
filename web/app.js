@@ -120,6 +120,8 @@ function syncViewport() {
   if (!v) return
   document.documentElement.style.setProperty('--vvh', v.height + 'px')
   document.documentElement.style.setProperty('--vvt', v.offsetTop + 'px')
+  document.documentElement.classList.toggle('kb', window.innerHeight - v.height > 120)
+  if (v.offsetLeft || window.scrollX) window.scrollTo(0, 0)   // undo any focus-induced page pan
 }
 if (window.visualViewport) { visualViewport.addEventListener('resize', syncViewport); visualViewport.addEventListener('scroll', syncViewport) }
 syncViewport()
