@@ -9,9 +9,9 @@
 2. Open `https://<user>.github.io/floop/` in Safari → Share → **Add to Home Screen**.
 
 ## Using it
-- **Scripts** opens a bottom-sheet fuzzy picker (Enter / tap runs). Empty search shows recents, then everything A–Z.
+- The footer is always the script list: tap a script to run it, or type in the search box to filter (Enter runs the best match). Empty search shows recents, then everything A–Z.
 - A selection is transformed in place; with no selection the whole text is (or `insert()` goes at the caret).
-- **Again** re-runs the last script. **↶ ↷** step through the undo history. **Paste** replaces the selection (or everything); **Copy** copies the selection (or everything).
+- Header icons: paste (replaces the selection, or everything), copy (selection, or everything), repeat last script, undo, redo, settings.
 - Like Boop, search queries of 20+ characters return nothing.
 
 ## Script sources
@@ -48,3 +48,5 @@ iOS opens such links in Safari rather than the home-screen app, and clipboard wr
 ```
 node web/build.mjs . _site && npx http-server _site
 ```
+
+Icons: [Font Awesome Free](https://fontawesome.com) (CC BY 4.0), inlined as an SVG sprite. Fuzzy search: [Fuse.js](https://www.fusejs.io) (Apache 2.0).

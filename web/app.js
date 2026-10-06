@@ -114,7 +114,7 @@ $('paste').onclick = async () => {
   } catch { ed.focus(); setStatus('error', 'Clipboard blocked: long-press the editor and choose Paste') }
 }
 
-// ---------- overlays sized to the visual viewport (so they sit above the keyboard) ----------
+// ---------- keep the layout inside the visual viewport (above the keyboard) ----------
 function syncViewport() {
   const v = window.visualViewport
   if (!v) return
@@ -126,12 +126,9 @@ function syncViewport() {
 if (window.visualViewport) { visualViewport.addEventListener('resize', syncViewport); visualViewport.addEventListener('scroll', syncViewport) }
 syncViewport()
 
-// ---------- picker ----------
-const picker = $('picker'), q = $('query'), results = $('results')
+// ---------- script list (always visible in the footer) ----------
+const q = $('query'), results = $('results')
 let shown = [], sel = 0
-
-function openPicker() { picker.hidden = false; q.value = ''; renderResults(); q.focus() }
-function closePicker() { picker.hidden = true; q.blur() }
 
 function renderResults() {
   const query = q.value.trim()
@@ -149,19 +146,22 @@ function renderResults() {
   }
   shown.slice(0, 200).forEach((s, i) => {
     const el = document.createElement('div')
-    el.className = 'item' + (i === 0 ? ' sel' : '')
+    el.className = 'item' + (i === 0 && query ? ' sel' : '')
     el.setAttribute('role', 'option')
-    const b = document.createElement('div'); b.className = 'badge'; b.textContent = (s.name[0] || '?').toUpperCase()
-    const t = document.createElement('div'); t.className = 't'
     const n = document.createElement('div'); n.className = 'n'; n.textContent = s.name
     const d = document.createElement('div'); d.className = 'd'; d.textContent = s.description
-    t.append(n, d); el.append(b, t)
+    el.append(n, d)
+    // Keep the editor focused/selected: don't let the tap steal focus before we run.
+    el.addEventListener('pointerdown', e => e.preventDefault())
     el.onclick = () => choose(s)
     results.append(el)
   })
   results.scrollTop = 0
 }
-function choose(s) { closePicker(); runScript(s) }
+function choose(s) {
+  q.value = ''; q.blur()
+  runScript(s).then(renderResults)
+}
 function moveSel(d) {
   const items = results.querySelectorAll('.item')
   if (!items.length) return
@@ -174,10 +174,8 @@ q.addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); if (shown[sel]) choose(shown[sel]) }
   else if (e.key === 'ArrowUp') { e.preventDefault(); moveSel(1) }   // list is reversed: up = further away
   else if (e.key === 'ArrowDown') { e.preventDefault(); moveSel(-1) }
-  else if (e.key === 'Escape') closePicker()
+  else if (e.key === 'Escape') { q.value = ''; q.blur(); renderResults() }
 })
-picker.querySelector('.scrim').onclick = closePicker
-$('scriptsBtn').onclick = openPicker
 
 // ---------- settings ----------
 const settings = $('settings')
@@ -217,6 +215,7 @@ function rebuild() {
   runner.reset()
   const ids = new Set(scripts.map(s => s.id))
   recent = recent.filter(id => ids.has(id))
+  if (typeof renderResults === 'function') try { renderResults() } catch { /* before first paint */ }
   if (lastScript && !ids.has(lastScript.id)) lastScript = null
 }
 
@@ -288,7 +287,7 @@ async function handleHash() {
     if (p.get('copy') === '1') { try { await navigator.clipboard.writeText(out) } catch { setStatus('error', 'Result ready; tap Copy (clipboard needs a tap)') } }
     const cb = p.get('callback')
     if (cb) location.href = cb.replace('{result}', encodeURIComponent(out))
-  } else if (p.get('picker') === '1') openPicker()
+  } else if (p.get('picker') === '1') q.focus()
 }
 addEventListener('hashchange', handleHash)
 
@@ -319,6 +318,7 @@ async function boot() {
     }
   }
   rebuild()
+  renderResults()
   if (location.hash.length > 1) await handleHash()
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {})
   if (navigator.onLine) sync(false)
