@@ -34,17 +34,20 @@ function setStatus(type, message) {
   const s = $('status')
   clearTimeout(statusTimer)
   if (!message) { s.classList.remove('show'); return }
-  s.className = type + ' show'; s.replaceChildren()
+  s.className = type + ' show'
+  const m = $('statusMsg'); m.replaceChildren()
   // {undo} in a message becomes the same Font Awesome icon as the toolbar button
   message.split('{undo}').forEach((part, i) => {
     if (i) {
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), use = document.createElementNS('http://www.w3.org/2000/svg', 'use')
-      svg.setAttribute('class', 'i inline'); use.setAttribute('href', '#i-undo'); svg.append(use); s.append(svg)
+      svg.setAttribute('class', 'i inline'); use.setAttribute('href', '#i-undo'); svg.append(use); m.append(svg)
     }
-    s.append(part)
+    m.append(part)
   })
   statusTimer = setTimeout(() => s.classList.remove('show'), type === 'error' ? 8000 : 4000)
 }
+
+$('statusClose').onclick = () => setStatus('', '')
 
 // ---------- undo history ----------
 const hist = { stack: [], i: -1 }
