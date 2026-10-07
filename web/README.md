@@ -23,7 +23,7 @@ Sync runs at launch (when online) and on demand; scripts are cached in IndexedDB
 
 ## Your own scripts
 Settings → *My scripts*: **+ New script** opens an editor with a starter template. **Test** runs it on your current editor text without changing it; **Save** keeps it on this device (shown as "On this device" in the list). **Import** fetches a raw `.js` URL or a github.com file page and opens it for review before saving.
-**Ask an AI to write it:** describe the script in the editor, tap *Copy prompt* (it includes Boop's script format and API), paste it into any chat AI, copy its reply, and tap *Paste reply*; code fences are stripped and the header is validated. Then Test and Save.
+**Ask an AI to write it:** with an Anthropic (Claude) and/or OpenAI (ChatGPT) API key entered under Settings → *AI providers*, the editor shows *Write with Claude* / *Write with ChatGPT* buttons that call the provider directly from your phone (keys stay on-device; models are editable, defaults `claude-sonnet-5-5` and `gpt-4o`). Without a key, or if you prefer a chat app: describe the script in the editor, tap *Copy prompt* (it includes Boop's script format and API), paste it into any chat AI, copy its reply, and tap *Paste reply*; code fences are stripped and the header is validated. Then Test and Save.
 With a GitHub token set, **Publish to GitHub** commits the script to the chosen source (default: the last one, `Scripts/`), after which it syncs to your other devices and the on-device copy is removed. The token needs write access (contents) to that repo.
 Imported and local scripts run with the same powers as any other script, so only import code you trust.
 

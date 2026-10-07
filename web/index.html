@@ -60,6 +60,22 @@
         <p id="syncInfo" class="hint"></p>
       </section>
       <section>
+        <h3>AI providers</h3>
+        <p class="hint">Optional. With a key, the script editor can write scripts for you directly. Keys stay on this device and are sent only to the provider. Use a key with a spending limit.</p>
+        <label>Anthropic (Claude) API key
+          <input id="keyAnthropic" type="password" autocomplete="off" placeholder="sk-ant-…">
+        </label>
+        <label>Claude model
+          <input id="modelAnthropic" autocapitalize="off" autocorrect="off" spellcheck="false">
+        </label>
+        <label>OpenAI (ChatGPT) API key
+          <input id="keyOpenai" type="password" autocomplete="off" placeholder="sk-…">
+        </label>
+        <label>OpenAI model
+          <input id="modelOpenai" autocapitalize="off" autocorrect="off" spellcheck="false">
+        </label>
+      </section>
+      <section>
         <h3>My scripts</h3>
         <p class="hint">Write your own, or import one from a link. They're kept on this device, and can be published to GitHub (needs a token above).</p>
         <div id="localList"></div>
@@ -102,8 +118,13 @@
     <div class="sheetbody">
       <details id="ask">
         <summary>Ask an AI to write it</summary>
-        <p class="hint">Describe the script, copy the prompt, paste it into Claude, ChatGPT or any chat app, then copy its reply and paste it back here.</p>
+        <p class="hint">Describe the script (or what to change in the code below). Use a button to have a model write it, or copy the prompt into any chat app and paste its reply back.</p>
         <textarea id="askText" rows="3" placeholder="e.g. Turn each line into a quoted, comma-separated SQL IN list"></textarea>
+        <div class="row" id="askGen">
+          <button id="genAnthropic" class="primary" hidden>Write with Claude</button>
+          <button id="genOpenai" class="primary" hidden>Write with ChatGPT</button>
+        </div>
+        <p class="hint" id="askNoKey">Add an API key in Settings → AI providers to have the app write it for you. Or copy and paste:</p>
         <div class="row">
           <button id="askCopy">1. Copy prompt</button>
           <button id="askPaste">2. Paste reply</button>

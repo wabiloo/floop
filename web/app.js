@@ -18,6 +18,9 @@ let recent = ls.get('recent', [])
 let favs = new Set(ls.get('favs', []))   // script ids
 let favOnly = ls.get('favOnly', false)
 let lastScript = null
+const AI_DEFAULTS = { anthropic: 'claude-sonnet-5-5', openai: 'gpt-4o' }
+let ai = ls.get('ai', { keys: {}, models: {} })
+const aiModel = p => (ai.models[p] || '').trim() || AI_DEFAULTS[p]
 // A script sees its own source's files plus every source's lib/ (so @boop/* built-ins resolve everywhere).
 const runner = new Runner(key => {
   const merged = {}
@@ -400,12 +403,70 @@ Rules:
 - On bad input, call state.postError("…") and leave state.text unchanged.
 - Reply with the complete script in one code block and nothing else.`
 
+function userRequest(req) {
+  const cur = codeArea.value.trim() && codeArea.value !== TEMPLATE
+    ? `\n\nHere is my current version, which you should modify:\n\n${codeArea.value}` : ''
+  return `Write a Boop script that does this: ${req}${cur}`
+}
+const stripFence = t => { const f = t.match(/```[a-zA-Z]*\n([\s\S]*?)```/); return (f ? f[1] : t).trim() + '\n' }
+
+async function askModel(provider, req) {
+  const key = ai.keys[provider], model = aiModel(provider), user = userRequest(req)
+  if (provider === 'anthropic') {
+    const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: {
+      'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model, max_tokens: 4096, system: SPEC, messages: [{ role: 'user', content: user }] }) })
+    const j = await r.json().catch(() => ({}))
+    if (!r.ok) throw new Error((j.error && j.error.message) || `${r.status} ${r.statusText}`)
+    return (j.content || []).filter(b => b.type === 'text').map(b => b.text).join('')
+  }
+  const r = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: {
+    'content-type': 'application/json', authorization: `Bearer ${key}` },
+    body: JSON.stringify({ model, max_completion_tokens: 4096, messages: [{ role: 'system', content: SPEC }, { role: 'user', content: user }] }) })
+  const j = await r.json().catch(() => ({}))
+  if (!r.ok) throw new Error((j.error && j.error.message) || `${r.status} ${r.statusText}`)
+  return (j.choices && j.choices[0] && j.choices[0].message.content) || ''
+}
+
+async function generate(provider) {
+  const req = $('askText').value.trim()
+  if (!req) return ceSay('error', 'Describe what the script should do first')
+  const btn = $(provider === 'anthropic' ? 'genAnthropic' : 'genOpenai')
+  const label = btn.textContent
+  document.querySelectorAll('#askGen button').forEach(b => { b.disabled = true })
+  btn.textContent = 'Writing…'; ceSay('info', 'Asking the model…')
+  try {
+    const code = stripFence(await askModel(provider, req))
+    if (!parseMeta(code)) throw new Error("the reply didn't contain a Boop script")
+    codeArea.value = code
+    $('ask').open = false
+    ceSay('info', 'Written. Tap Test to try it on your text, then Save.')
+  } catch (e) { ceSay('error', 'AI request failed: ' + e.message) }
+  finally { btn.textContent = label; document.querySelectorAll('#askGen button').forEach(b => { b.disabled = false }) }
+}
+$('genAnthropic').onclick = () => generate('anthropic')
+$('genOpenai').onclick = () => generate('openai')
+
+function syncAiButtons() {
+  $('genAnthropic').hidden = !ai.keys.anthropic
+  $('genOpenai').hidden = !ai.keys.openai
+  $('askGen').hidden = !(ai.keys.anthropic || ai.keys.openai)
+  $('askNoKey').hidden = !!(ai.keys.anthropic || ai.keys.openai)
+}
+for (const p of ['anthropic', 'openai']) {
+  const P = p[0].toUpperCase() + p.slice(1)
+  const key = $('key' + P), model = $('model' + P)
+  key.value = ai.keys[p] || ''; model.value = ai.models[p] || ''; model.placeholder = AI_DEFAULTS[p]
+  key.onchange = () => { ai.keys[p] = key.value.trim(); ls.set('ai', ai); syncAiButtons() }
+  model.onchange = () => { ai.models[p] = model.value.trim(); ls.set('ai', ai) }
+}
+syncAiButtons()
+
 $('askCopy').onclick = async () => {
   const req = $('askText').value.trim()
   if (!req) return ceSay('error', 'Describe what the script should do first')
-  const cur = codeArea.value.trim() && codeArea.value !== TEMPLATE
-    ? `\n\nHere is my current version, which you should modify:\n\n${codeArea.value}` : ''
-  const prompt = `${SPEC}\n\nWrite a Boop script that does this: ${req}${cur}`
+  const prompt = `${SPEC}\n\n${userRequest(req)}`
   try { await navigator.clipboard.writeText(prompt); ceSay('success', 'Prompt copied. Paste it into your AI app, then come back and tap "Paste reply".') }
   catch { ceSay('error', 'Clipboard blocked. Tap again, or allow clipboard access.') }
 }
@@ -413,8 +474,7 @@ $('askCopy').onclick = async () => {
 $('askPaste').onclick = async () => {
   let t
   try { t = await navigator.clipboard.readText() } catch { return ceSay('error', 'Clipboard blocked. Long-press the code box and choose Paste instead.') }
-  const fence = t.match(/```[a-zA-Z]*\n([\s\S]*?)```/)
-  const code = (fence ? fence[1] : t).trim() + '\n'
+  const code = stripFence(t)
   if (!parseMeta(code)) return ceSay('error', "That doesn't look like a Boop script (no /** {json} **/ header). Copy the AI's whole reply and try again.")
   if (codeArea.value.trim() && codeArea.value !== TEMPLATE && !confirm('Replace the code in the editor?')) return
   codeArea.value = code
