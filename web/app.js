@@ -245,16 +245,16 @@ q.addEventListener('keydown', e => {
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
 const MOD = isMac ? '⌘' : 'Ctrl'
 const SHORTCUTS = [
-  { keys: [MOD, 'K'], label: 'Search scripts (then Enter applies the top match)', test: e => e.key.toLowerCase() === 'k' && !e.shiftKey,
+  { el: 'query', keys: [MOD, 'K'], label: 'Search scripts (then Enter applies the top match)', test: e => e.key.toLowerCase() === 'k' && !e.shiftKey,
     run() { q.focus(); q.select() }, anywhere: true },
-  { keys: [MOD, 'Enter'], label: 'Apply the last script again', test: e => e.key === 'Enter' && !e.shiftKey,
+  { el: 'again', keys: [MOD, 'Enter'], label: 'Apply the last script again', test: e => e.key === 'Enter' && !e.shiftKey,
     run() { if (lastScript) runScript(lastScript).then(() => { if (desktop.matches) ed.focus() }); else setStatus('info', 'No script applied yet') }, anywhere: true },
-  { keys: [MOD, 'Z'], label: 'Undo', test: e => e.key.toLowerCase() === 'z' && !e.shiftKey,
+  { el: 'undo', keys: [MOD, 'Z'], label: 'Undo', test: e => e.key.toLowerCase() === 'z' && !e.shiftKey,
     run() { pushHistory(); restore(hist.i - 1) } },
-  { keys: [MOD, 'Shift', 'Z'], alt: isMac ? null : [MOD, 'Y'], label: 'Redo',
+  { el: 'redo', keys: [MOD, 'Shift', 'Z'], alt: isMac ? null : [MOD, 'Y'], label: 'Redo',
     test: e => (e.key.toLowerCase() === 'z' && e.shiftKey) || (!isMac && e.key.toLowerCase() === 'y' && !e.shiftKey),
     run() { restore(hist.i + 1) } },
-  { keys: [MOD, 'Shift', 'X'], label: 'Clear the text (undo brings it back)', test: e => e.key.toLowerCase() === 'x' && e.shiftKey,
+  { el: 'clear', keys: [MOD, 'Shift', 'X'], label: 'Clear the text (undo brings it back)', test: e => e.key.toLowerCase() === 'x' && e.shiftKey,
     run() { $('clear').click() } },
 ]
 document.addEventListener('keydown', e => {
@@ -279,6 +279,13 @@ function renderShortcuts() {
   }
 }
 renderShortcuts()
+// Hover hints: the button's label plus its shortcut, e.g. "Undo (Ctrl+Z)"
+const fmtKeys = ks => isMac ? ks.map(k => ({ Shift: '⇧', Enter: '↩' }[k] || k)).join('') : ks.join('+')
+for (const [id, label] of [['paste', 'Paste'], ['copy', 'Copy'], ['settingsBtn', 'Settings'], ['favOnly', 'Show only favourites'], ['statusClose', 'Dismiss message']]) $(id).title = label
+for (const s of SHORTCUTS) {
+  const el = $(s.el), label = el.getAttribute('aria-label') || 'Search scripts'
+  el.title = `${label} (${fmtKeys(s.keys)}${s.alt ? ' or ' + fmtKeys(s.alt) : ''})`
+}
 
 // ---------- settings ----------
 const settings = $('settings')
