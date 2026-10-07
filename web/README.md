@@ -15,7 +15,7 @@ To host your own copy: fork the repo, then **Settings → Pages → Source: GitH
 - The footer is always the script list: tap a script to run it, or type in the search box to filter (Enter runs the best match). Empty search shows recents, then everything A–Z.
 - A selection is transformed in place; with no selection the whole text is (or `insert()` goes at the caret).
 - Tap a star to favourite a script (it doesn't change the order); the star button next to the search box shows only favourites.
-- Header icons: clear (undoable), paste (replaces the selection, or everything), copy (selection, or everything), repeat last script, undo, redo, settings. Messages (from scripts, sync, clear) pop up just above the script list for a few seconds, then tuck away.
+- Header icons: clear (undoable), paste (replaces the selection, or everything), copy (selection, or everything), repeat last script, undo, redo, settings. Messages (from scripts, sync, clear) open as a row just above the script list for a few seconds, then close.
 - Your text is kept on the device between launches.
 - Like Boop, search queries of 20+ characters return nothing.
 

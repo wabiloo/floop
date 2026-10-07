@@ -15,12 +15,10 @@ html, body { overflow: hidden; position: fixed; width: 100%; }
 header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; border-bottom: 1px solid var(--line); min-height: 46px; }
 #top { flex: none; }
 header { background: var(--bg); }
-/* The message pops up from the top edge of the script list, over the bottom of the editor. */
-#statusWrap { position: absolute; left: 0; right: 0; bottom: calc(100% + 2px); height: 30px; overflow: hidden; pointer-events: none; }
-#status { height: 30px; line-height: 30px; padding: 0 12px; font-size: 14px; background: var(--panel); color: var(--muted);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-top: 1px solid var(--line);
-  transform: translateY(100%); visibility: hidden; transition: transform .22s ease, visibility 0s .22s; }
-#status.show { transform: translateY(0); visibility: visible; transition: transform .22s ease, visibility 0s; }
+/* The message opens as its own row between the editor and the script list (above the orange line), then closes. */
+#status { flex: none; height: 0; line-height: 30px; padding: 0 12px; font-size: 14px; background: var(--panel); color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-top: 0 solid var(--line); transition: height .2s ease; }
+#status.show { height: 30px; border-top-width: 1px; }
 #status.info { color: var(--info); } #status.error { color: var(--err); } #status.success { color: var(--ok); }
 .hbtns { display: flex; gap: 4px; }
 button { font: inherit; color: var(--fg); background: var(--panel); border: 0; border-radius: 10px; padding: 9px 14px; min-height: 40px; }
@@ -38,7 +36,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); font-weight
 .sheet { position: relative; border-top: 2px solid var(--line-strong); background: var(--bg); border-radius: 16px 16px 0 0; max-height: 72%; display: flex; flex-direction: column;
   padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 24px rgba(0,0,0,.25); }
 .sheet.tall { height: 88%; max-height: 88%; }
-#scripts { position: relative; border-top: 2px solid var(--line-strong); background: var(--panel); box-shadow: 0 -6px 14px rgba(0,0,0,.18); display: flex; flex-direction: column; flex: none; }
+#scripts { border-top: 2px solid var(--line-strong); background: var(--panel); box-shadow: 0 -6px 14px rgba(0,0,0,.18); display: flex; flex-direction: column; flex: none; }
 #results { display: flex; flex-direction: column-reverse; overflow-y: auto; height: 34vh; max-height: 34vh; -webkit-overflow-scrolling: touch; }
 .kb #results { height: 132px; }
 .item { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 16px; border-top: 1px solid var(--line); cursor: pointer; flex: none; }
