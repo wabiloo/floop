@@ -60,6 +60,16 @@
         <p id="syncInfo" class="hint"></p>
       </section>
       <section>
+        <h3>My scripts</h3>
+        <p class="hint">Write your own, or import one from a link. They're kept on this device, and can be published to GitHub (needs a token above).</p>
+        <div id="localList"></div>
+        <button id="newScript" class="primary">+ New script</button>
+        <label>Import from a link (raw .js or a github.com file page)
+          <input id="importInput" type="url" placeholder="https://github.com/…/Script.js" autocapitalize="off" autocorrect="off">
+        </label>
+        <button id="importUrl">Import</button>
+      </section>
+      <section>
         <h3>Shortcuts &amp; links</h3>
         <p class="hint">Open the app with a link to run a script on some text:</p>
         <pre id="linkEx"></pre>
@@ -82,6 +92,28 @@
         <p class="hint">Source and scripts live in <a href="https://github.com/wabiloo/floop" target="_blank" rel="noopener">wabiloo/floop</a>.
           Built with Claude Code. Icons by Font Awesome Free (CC BY 4.0); fuzzy search by Fuse.js.</p>
       </section>
+    </div>
+  </div>
+</div>
+<div id="scriptEditor" class="overlay" hidden>
+  <div class="scrim"></div>
+  <div class="sheet tall">
+    <div class="sheethead"><h2 id="ceTitle">New script</h2><button id="ceCancel">Close</button></div>
+    <div class="sheetbody">
+      <textarea id="ceCode" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+      <p id="ceMsg" class="hint"></p>
+      <pre id="ceOut" aria-label="Test output"></pre>
+      <label id="pubRow" hidden>Publish to
+        <select id="pubTarget"></select>
+      </label>
+      <div class="row">
+        <button id="ceTest">Test</button>
+        <button id="ceSave" class="primary">Save</button>
+      </div>
+      <div class="row">
+        <button id="cePublish" hidden>Publish to GitHub</button>
+        <button id="ceDelete" hidden>Delete</button>
+      </div>
     </div>
   </div>
 </div>

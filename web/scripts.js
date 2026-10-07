@@ -163,6 +163,7 @@ export class Runner {
     this.workers = new Map()       // script id -> { worker, ready, codeRef }
     this.runId = 0
   }
+  drop(id) { const w = this.workers.get(id); if (w) { w.worker.terminate(); this.workers.delete(id) } }
   reset() { for (const w of this.workers.values()) w.worker.terminate(); this.workers.clear() }
 
   _spawn(script) {

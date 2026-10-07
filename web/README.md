@@ -21,6 +21,11 @@ Top-level `.js` files with a `/** {json} **/` header are scripts; subfolders (`l
 Sync runs at launch (when online) and on demand; scripts are cached in IndexedDB. The site also ships a snapshot
 (`scripts-bundle.json`, built from this repo at deploy time) so first launch works offline.
 
+## Your own scripts
+Settings → *My scripts*: **+ New script** opens an editor with a starter template. **Test** runs it on your current editor text without changing it; **Save** keeps it on this device (shown as "On this device" in the list). **Import** fetches a raw `.js` URL or a github.com file page and opens it for review before saving.
+With a GitHub token set, **Publish to GitHub** commits the script to the chosen source (default: the last one, `Scripts/`), after which it syncs to your other devices and the on-device copy is removed. The token needs write access (contents) to that repo.
+Imported and local scripts run with the same powers as any other script, so only import code you trust.
+
 ## Shortcuts / deep links
 `https://<user>.github.io/floop/#script=Base64%20Encode&text=hello&copy=1`
 

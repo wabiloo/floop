@@ -1,4 +1,4 @@
-import { DEFAULT_SOURCES, sourceKey, fetchSource, buildScripts, makeSearch, Runner, kvGet, kvSet } from './scripts.js'
+import { DEFAULT_SOURCES, sourceKey, fetchSource, buildScripts, makeSearch, parseMeta, Runner, kvGet, kvSet } from './scripts.js'
 
 const $ = id => document.getElementById(id)
 const ed = $('editor')
@@ -11,6 +11,7 @@ const ls = {
 let sources = ls.get('sources', DEFAULT_SOURCES)
 let token = ls.get('token', '')
 let caches = {}          // sourceKey -> { files, syncedAt }
+let local = { files: {} } // scripts created or imported in the app, kept on this device
 let scripts = []
 let search = () => []
 let recent = ls.get('recent', [])
@@ -21,7 +22,7 @@ let lastScript = null
 const runner = new Runner(key => {
   const merged = {}
   for (const c of Object.values(caches)) for (const [p, f] of Object.entries(c.files)) if (p.startsWith('lib/')) merged[p] = f
-  return Object.assign(merged, (caches[key] || { files: {} }).files)
+  return Object.assign(merged, (key === 'local' ? local : caches[key] || { files: {} }).files)
 })
 
 // ---------- status ----------
@@ -152,7 +153,7 @@ function renderResults() {
     el.className = 'item' + (i === 0 && query ? ' sel' : '')
     el.setAttribute('role', 'option')
     const n = document.createElement('div'); n.className = 'n'; n.textContent = s.name
-    const d = document.createElement('div'); d.className = 'd'; d.textContent = s.description
+    const d = document.createElement('div'); d.className = 'd'; d.textContent = (s.source === 'local' ? 'On this device · ' : '') + s.description
     const txt = document.createElement('div'); txt.className = 't'; txt.append(n, d)
     const star = document.createElement('button'); star.className = 'star' + (favs.has(s.id) ? ' on' : '')
     star.setAttribute('aria-label', 'Favourite'); star.setAttribute('aria-pressed', favs.has(s.id))
@@ -226,7 +227,7 @@ function updateSyncInfo(extra) {
   const when = times.length ? new Date(Math.max(...times)).toLocaleString() : 'never'
   $('syncInfo').textContent = `${scripts.length} scripts · last synced ${when}${extra ? ' · ' + extra : ''}`
 }
-$('settingsBtn').onclick = () => { settings.hidden = false; renderSources(); $('token').value = token; updateSyncInfo(); updateLink() }
+$('settingsBtn').onclick = () => { settings.hidden = false; renderSources(); renderLocal(); $('token').value = token; updateSyncInfo(); updateLink() }
 $('closeSettings').onclick = () => { settings.hidden = true }
 settings.querySelector('.scrim').onclick = () => { settings.hidden = true }
 $('addSource').onclick = () => { sources.push({ repo: '', branch: 'main', path: '' }); renderSources() }
@@ -235,7 +236,7 @@ $('token').onchange = e => { token = e.target.value.trim(); ls.set('token', toke
 $('sync').onclick = () => sync(true)
 
 function rebuild() {
-  scripts = buildScripts(caches)
+  scripts = buildScripts({ ...caches, local })
   search = makeSearch(scripts)
   runner.reset()
   const ids = new Set(scripts.map(s => s.id))
@@ -273,6 +274,158 @@ async function sync(manual) {
   syncing = false; btn.disabled = false
   if (errors.length) { setStatus('error', 'Sync failed: ' + errors[0]); updateSyncInfo(errors.join('; ')) }
   else { setStatus('success', `Synced ${scripts.length} scripts`); updateSyncInfo() }
+}
+
+
+// ---------- your own scripts (on-device, optionally published to GitHub) ----------
+const TEMPLATE = `/**
+  {
+    "api": 1,
+    "name": "My Script",
+    "description": "What it does",
+    "author": "",
+    "icon": "metamorphose",
+    "tags": "my,script"
+  }
+**/
+
+function main(state) {
+  state.text = state.text.toUpperCase()
+}
+`
+const sheet = $('scriptEditor'), codeArea = $('ceCode'), ceOut = $('ceOut'), ceMsg = $('ceMsg')
+let editing = null   // { file } of the local script being edited, or null for a new one
+
+function renderLocal() {
+  const box = $('localList'); box.replaceChildren()
+  const names = Object.keys(local.files).sort()
+  if (!names.length) { const p = document.createElement('p'); p.className = 'hint'; p.textContent = 'No scripts of your own yet.'; box.append(p); return }
+  for (const file of names) {
+    const meta = scripts.find(s => s.id === 'local/' + file)
+    const row = document.createElement('div'); row.className = 'lrow'
+    const t = document.createElement('span'); t.textContent = meta ? meta.name : file
+    const b = document.createElement('button'); b.textContent = 'Edit'
+    b.onclick = () => openScriptEditor(file)
+    row.append(t, b); box.append(row)
+  }
+}
+
+function openScriptEditor(file, code) {
+  editing = file ? { file } : null
+  codeArea.value = code ?? (file ? local.files[file].code : TEMPLATE)
+  $('ceTitle').textContent = file ? 'Edit script' : 'New script'
+  $('ceDelete').hidden = !file
+  $('cePublish').hidden = !token; $('pubRow').hidden = !token
+  const pt = $('pubTarget'); pt.replaceChildren(...sources.filter(s => s.repo.includes('/')).map((s, i) => new Option(`${s.repo}@${s.branch}/${s.path}`, i)))
+  pt.value = pt.options.length - 1   // default to the last source (the custom-scripts folder in the defaults)
+  ceOut.textContent = ''; ceMsg.textContent = ''; ceMsg.className = 'hint'
+  sheet.hidden = false
+  if (!file && code === undefined) { codeArea.focus(); codeArea.setSelectionRange(0, 0) }
+}
+const ceSay = (type, m) => { ceMsg.textContent = m; ceMsg.className = 'hint ' + type }
+
+function checkCode() {
+  const meta = parseMeta(codeArea.value)
+  if (!meta) { ceSay('error', 'The header must be valid JSON between /** and **/'); return null }
+  if (!meta.name) { ceSay('error', 'The header needs a "name"'); return null }
+  if (!/function\s+main\s*\(|\bmain\s*=/.test(codeArea.value)) { ceSay('error', 'The script needs a main(state) function'); return null }
+  return meta
+}
+const fileNameFor = name => (name.replace(/[^A-Za-z0-9 _.-]+/g, '').trim().replace(/\s+/g, '') || 'Script').replace(/\.js$/, '') + '.js'
+
+$('ceTest').onclick = async () => {
+  const meta = checkCode(); if (!meta) return
+  const script = { id: 'local/__test.js', source: 'local', file: '__test.js', name: meta.name, code: codeArea.value }
+  ceOut.textContent = '…'
+  const full = ed.value, s = ed.selectionStart, e = ed.selectionEnd
+  const res = await runner.run(script, { fullText: full, selection: e > s ? full.slice(s, e) : null, insertIndex: s })
+  runner.drop(script.id)
+  ceOut.textContent = res.failed ? '' : res.text
+  const err = (res.messages || []).find(m => m.type === 'error')
+  if (err) ceSay('error', err.message)
+  else ceSay('success', (res.messages || []).map(m => m.message).join(' · ') || 'Ran on your editor text (not applied)')
+}
+
+$('ceSave').onclick = async () => {
+  const meta = checkCode(); if (!meta) return
+  let file = editing ? editing.file : fileNameFor(meta.name)
+  if (!editing) {
+    const base = file.replace(/\.js$/, '')
+    for (let i = 2; file in local.files; i++) file = `${base}-${i}.js`
+  }
+  local.files[file] = { sha: '', code: codeArea.value }
+  await kvSet('local', local)
+  rebuild(); renderLocal()
+  sheet.hidden = true
+  setStatus('success', `Saved "${meta.name}" on this device`)
+}
+
+$('ceDelete').onclick = async () => {
+  if (!editing || !confirm('Delete this script from this device?')) return
+  delete local.files[editing.file]
+  favs.delete('local/' + editing.file); ls.set('favs', [...favs])
+  await kvSet('local', local)
+  rebuild(); renderLocal(); sheet.hidden = true
+  setStatus('success', 'Script deleted')
+}
+$('ceCancel').onclick = () => { sheet.hidden = true }
+sheet.querySelector('.scrim').onclick = () => { sheet.hidden = true }
+$('newScript').onclick = () => openScriptEditor()
+
+// Publish: commit the script into one of the configured GitHub sources (needs a token with write access).
+$('cePublish').onclick = async () => {
+  const meta = checkCode(); if (!meta) return
+  const targets = sources.filter(s => s.repo.includes('/'))
+  if (!targets.length) return ceSay('error', 'Add a script source in Settings first')
+  const target = targets[Math.min(+$('pubTarget').value || 0, targets.length - 1)]
+  const file = editing ? editing.file : fileNameFor(meta.name)
+  const path = [target.path.replace(/^\/+|\/+$/g, ''), file].filter(Boolean).join('/')
+  const url = `https://api.github.com/repos/${target.repo}/contents/${path.split('/').map(encodeURIComponent).join('/')}`
+  const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
+  $('cePublish').disabled = true; ceSay('info', 'Publishing…')
+  try {
+    let sha
+    const cur = await fetch(`${url}?ref=${encodeURIComponent(target.branch)}`, { headers })
+    if (cur.ok) {
+      if (!confirm(`${file} already exists in ${target.repo}. Overwrite it?`)) { ceSay('', ''); return }
+      sha = (await cur.json()).sha
+    }
+    const body = { message: `Add script: ${meta.name}`, branch: target.branch, sha,
+      content: btoa(String.fromCharCode(...new TextEncoder().encode(codeArea.value))) }
+    const r = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) })
+    if (!r.ok) throw new Error(r.status === 404 || r.status === 403 ? `${r.status}: token lacks write access to ${target.repo}` : `${r.status} ${r.statusText}`)
+    const out = await r.json()
+    const key = sourceKey(target)
+    caches[key] ||= { files: {}, syncedAt: Date.now() }
+    caches[key].files[file] = { sha: out.content.sha, code: codeArea.value }
+    await kvSet('caches', caches)
+    if (editing) { delete local.files[editing.file]; favs.delete('local/' + editing.file); await kvSet('local', local) }
+    rebuild(); renderLocal(); sheet.hidden = true
+    setStatus('success', `Published ${file} to ${target.repo}`)
+  } catch (e) {
+    ceSay('error', 'Publish failed: ' + e.message)
+  } finally { $('cePublish').disabled = false }
+}
+
+// Import: fetch a .js file from a URL and open it in the editor for review before saving.
+function toRawUrl(u) {
+  const m = u.match(/^https:\/\/github\.com\/([^/]+\/[^/]+)\/blob\/(.+)$/)
+  return m ? `https://raw.githubusercontent.com/${m[1]}/${m[2]}` : u
+}
+$('importUrl').onclick = async () => {
+  const u = $('importInput').value.trim()
+  if (!/^https:\/\//.test(u)) return setStatus('error', 'Enter an https:// link to a .js file')
+  const btn = $('importUrl'); btn.disabled = true
+  try {
+    const r = await fetch(toRawUrl(u))
+    if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
+    const code = await r.text()
+    if (!parseMeta(code)) throw new Error('not a Boop script (no /** {json} **/ header)')
+    $('importInput').value = ''
+    openScriptEditor(null, code)
+    ceSay('info', 'Review the code, then Save. Imported scripts run on your text.')
+  } catch (e) { setStatus('error', 'Import failed: ' + e.message) }
+  finally { btn.disabled = false }
 }
 
 // ---------- Shortcuts / deep links ----------
@@ -331,6 +484,7 @@ async function boot() {
   hist.stack = [snap()]; hist.i = 0; updateUndo()
 
   caches = (await kvGet('caches')) || {}
+  local = (await kvGet('local')) || { files: {} }
   const want = new Set(sources.map(sourceKey))
   const have = Object.keys(caches).filter(k => want.has(k))
   if (!have.length) {

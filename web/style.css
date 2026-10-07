@@ -66,3 +66,11 @@ input:not(#query) { display: block; width: 100%; margin-top: 4px; padding: 10px;
 .kb .sheet { padding-bottom: 0; }
 a { color: var(--accent); }
 #about { border-top: 1px solid var(--line); padding-top: 16px; }
+#ceCode { width: 100%; height: 38vh; resize: none; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--fg);
+  font: 14px/1.4 ui-monospace, "SF Mono", Menlo, monospace; white-space: pre; overflow: auto; }
+#ceOut { max-height: 18vh; overflow: auto; margin: 8px 0; }
+#ceOut:empty { display: none; }
+.hint.error { color: var(--err); } .hint.success { color: var(--ok); } .hint.info { color: var(--info); }
+select { display: block; width: 100%; margin-top: 4px; padding: 10px; font-size: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--fg); }
+.lrow { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+section button + label { margin-top: 16px; }
