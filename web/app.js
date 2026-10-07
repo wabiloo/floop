@@ -452,6 +452,7 @@ function syncAiButtons() {
   $('genAnthropic').hidden = !ai.keys.anthropic
   $('genOpenai').hidden = !ai.keys.openai
   $('askGen').hidden = !(ai.keys.anthropic || ai.keys.openai)
+  $('askGen').style.display = $('askGen').hidden ? 'none' : ''
   $('askNoKey').hidden = !!(ai.keys.anthropic || ai.keys.openai)
 }
 for (const p of ['anthropic', 'openai']) {

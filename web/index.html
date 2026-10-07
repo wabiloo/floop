@@ -118,16 +118,25 @@
     <div class="sheetbody">
       <details id="ask">
         <summary>Ask an AI to write it</summary>
-        <p class="hint">Describe the script (or what to change in the code below). Use a button to have a model write it, or copy the prompt into any chat app and paste its reply back.</p>
-        <textarea id="askText" rows="3" placeholder="e.g. Turn each line into a quoted, comma-separated SQL IN list"></textarea>
-        <div class="row" id="askGen">
-          <button id="genAnthropic" class="primary" hidden>Write with Claude</button>
-          <button id="genOpenai" class="primary" hidden>Write with ChatGPT</button>
+        <label>What should the script do?
+          <textarea id="askText" rows="3" placeholder="e.g. Turn each line into a quoted, comma-separated SQL IN list"></textarea>
+        </label>
+        <div class="opt" id="optApp">
+          <h4>Option 1 · Let the app write it</h4>
+          <p class="hint" id="askNoKey">Needs an API key: add one in Settings → AI providers.</p>
+          <div class="row" id="askGen">
+            <button id="genAnthropic" class="primary" hidden>Write with Claude</button>
+            <button id="genOpenai" class="primary" hidden>Write with ChatGPT</button>
+          </div>
         </div>
-        <p class="hint" id="askNoKey">Add an API key in Settings → AI providers to have the app write it for you. Or copy and paste:</p>
-        <div class="row">
-          <button id="askCopy">1. Copy prompt</button>
-          <button id="askPaste">2. Paste reply</button>
+        <div class="or"><span>or</span></div>
+        <div class="opt" id="optChat">
+          <h4>Option 2 · Use a chat app</h4>
+          <p class="hint">Copy the prompt, paste it into Claude, ChatGPT or any chat app, then copy the reply and paste it here.</p>
+          <div class="row">
+            <button id="askCopy">1. Copy prompt</button>
+            <button id="askPaste">2. Paste reply</button>
+          </div>
         </div>
       </details>
       <textarea id="ceCode" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>

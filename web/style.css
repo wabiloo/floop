@@ -78,3 +78,9 @@ section button + label { margin-top: 16px; }
 #ask summary { font-weight: 600; cursor: pointer; }
 #askText { width: 100%; margin-top: 4px; padding: 10px; font: 16px/1.4 -apple-system, system-ui, sans-serif; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--fg); resize: none; }
 #askGen { margin: 8px 0; } #askGen button { flex: 1; }
+.opt { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 10px 0; }
+.opt h4 { margin: 0 0 4px; font-size: 14px; color: var(--accent); }
+.opt .hint { margin: 2px 0 8px; } .opt .row { margin-top: 6px; }
+.or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+.or::before, .or::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+#ask label { margin: 10px 0 0; }
