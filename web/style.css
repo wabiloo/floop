@@ -16,11 +16,11 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 #top { flex: none; }
 header { background: var(--bg); }
 /* The message opens as its own row between the editor and the script list (above the orange line), then closes. */
-#status { flex: none; height: 0; display: flex; align-items: flex-start; gap: 8px; line-height: 22px; padding: 0 4px 0 14px; font-size: 14px; background: var(--panel); color: var(--muted);
+#status { flex: none; height: 0; display: flex; align-items: center; gap: 8px; line-height: 22px; padding: 0 4px 0 14px; font-size: 14px; background: var(--panel); color: var(--muted);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-top: 0 solid var(--line-mid); transition: height .2s ease; }
-#status.show { height: 40px; padding-top: 11px; border-top-width: 1px; }
+#status.show { height: 40px; border-top-width: 1px; }
 #statusMsg { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-#statusClose { flex: none; width: 36px; height: 36px; min-height: 36px; margin-top: -9px; padding: 0; background: transparent; color: inherit; display: grid; place-items: center; opacity: .8; }
+#statusClose { flex: none; width: 36px; height: 36px; min-height: 36px; padding: 0; background: transparent; color: inherit; display: grid; place-items: center; opacity: .8; }
 #statusClose .i { width: 14px; height: 14px; }
 #status.info { color: var(--info); background: color-mix(in srgb, var(--info) 14%, var(--panel)); }
 #status.error { color: var(--err); background: color-mix(in srgb, var(--err) 14%, var(--panel)); }
