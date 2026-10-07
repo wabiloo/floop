@@ -18,7 +18,7 @@ function walk(dir) {
 }
 
 mkdirSync(out, { recursive: true })
-cpSync(webDir, out, { recursive: true, filter: p => !/build\.mjs$|README\.md$/.test(p) })
+cpSync(webDir, out, { recursive: true, filter: p => !/build\.mjs$|README\.md$|[\\/]docs([\\/]|$)/.test(p) })
 
 const sources = {}
 for (const src of DEFAULT_SOURCES) {
