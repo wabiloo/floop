@@ -1,7 +1,7 @@
 {
   "name": "Floop",
   "short_name": "Floop",
-  "description": "Boop for iPhone: run Boop scripts on your text.",
+  "description": "Boop on any device: run Boop scripts on your text.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

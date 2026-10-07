@@ -1,11 +1,16 @@
 # Floop (web)
 
-[Boop](https://github.com/IvanMathy/Boop) for iPhone, as an offline-capable PWA. It runs unmodified Boop scripts
+[Boop](https://github.com/IvanMathy/Boop) on any device, as an offline-capable PWA for phones, tablets and desktops. It runs unmodified Boop scripts
 (`main(state)`, `state.text / fullText / selection / isSelection`, `insert()`, `postInfo()`, `postError()`,
 `require('@boop/…')`, `bias`, tags, fuzzy search) in a per-script Web Worker.
 
-## Install on iPhone
-Open <https://wabiloo.github.io/floop/> in Safari → Share → **Add to Home Screen**.
+## Install
+Open <https://wabiloo.github.io/floop/> in any modern browser; it works there as is. To install it as an app:
+- **iPhone / iPad:** Safari → Share → **Add to Home Screen**.
+- **Android:** Chrome → menu → **Install app** (or *Add to Home screen*).
+- **Desktop:** Chrome or Edge → the install icon in the address bar. On wide screens the layout switches to two columns.
+
+It was designed and tested phone-first on iOS; other platforms use the same code but get less testing.
 
 Updates arrive by themselves: each deploy gets its own offline cache, and the app checks for a new version whenever you bring it to the front, then reloads once. *Settings → About* shows the version.
 
@@ -34,6 +39,8 @@ With a GitHub token set, **Publish to GitHub** commits the script to the chosen 
 Imported and local scripts run with the same powers as any other script, so only import code you trust.
 
 ## Shortcuts / deep links
+Deep links work on every platform; the recipe below is for the iOS Shortcuts app.
+
 `https://<user>.github.io/floop/#script=Base64%20Encode&text=hello&copy=1`
 
 | param | meaning |
