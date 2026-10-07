@@ -143,3 +143,4 @@ section button + label { margin-top: 16px; }
 @keyframes sheetUp { from { transform: translateY(28px); opacity: 0; } to { transform: none; opacity: 1; } }
 .overlay:not([hidden]) .sheet { animation: sheetUp .22s ease; }
 @media (prefers-reduced-motion: reduce) { .overlay:not([hidden]) .sheet { animation: none; } }
+#version { margin: 12px 0 0; }
