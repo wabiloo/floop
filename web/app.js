@@ -209,9 +209,10 @@ function renderResults() {
   })
   results.scrollTop = 0
 }
+const desktop = matchMedia('(hover: hover) and (pointer: fine)')
 function choose(s) {
   q.value = ''; q.blur()
-  runScript(s).then(renderResults)
+  runScript(s).then(() => { renderResults(); if (desktop.matches) ed.focus() })
 }
 function moveSel(d) {
   const items = results.querySelectorAll('.item')
@@ -237,8 +238,47 @@ q.addEventListener('keydown', e => {
     const reversed = getComputedStyle(results).flexDirection === 'column-reverse'
     moveSel((e.key === 'ArrowUp') === reversed ? 1 : -1)
   }
-  else if (e.key === 'Escape') { q.value = ''; q.blur(); renderResults() }
+  else if (e.key === 'Escape') { q.value = ''; q.blur(); renderResults(); if (desktop.matches) ed.focus() }
 })
+
+// ---------- keyboard shortcuts (desktop) ----------
+const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
+const MOD = isMac ? '⌘' : 'Ctrl'
+const SHORTCUTS = [
+  { keys: [MOD, 'K'], label: 'Search scripts (then Enter applies the top match)', test: e => e.key.toLowerCase() === 'k' && !e.shiftKey,
+    run() { q.focus(); q.select() }, anywhere: true },
+  { keys: [MOD, 'Enter'], label: 'Apply the last script again', test: e => e.key === 'Enter' && !e.shiftKey,
+    run() { if (lastScript) runScript(lastScript).then(() => { if (desktop.matches) ed.focus() }); else setStatus('info', 'No script applied yet') }, anywhere: true },
+  { keys: [MOD, 'Z'], label: 'Undo', test: e => e.key.toLowerCase() === 'z' && !e.shiftKey,
+    run() { pushHistory(); restore(hist.i - 1) } },
+  { keys: [MOD, 'Shift', 'Z'], alt: isMac ? null : [MOD, 'Y'], label: 'Redo',
+    test: e => (e.key.toLowerCase() === 'z' && e.shiftKey) || (!isMac && e.key.toLowerCase() === 'y' && !e.shiftKey),
+    run() { restore(hist.i + 1) } },
+  { keys: [MOD, 'Shift', 'X'], label: 'Clear the text (undo brings it back)', test: e => e.key.toLowerCase() === 'x' && e.shiftKey,
+    run() { $('clear').click() } },
+]
+document.addEventListener('keydown', e => {
+  if (!(isMac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey) || e.altKey || e.isComposing) return
+  if (!settings.hidden || !$('scriptEditor').hidden) return          // leave dialogs alone
+  const t = e.target, inEditor = t === ed || t === document.body
+  const sc = SHORTCUTS.find(s => s.test(e))
+  if (!sc || (!sc.anywhere && !inEditor)) return                     // other fields keep their native undo etc.
+  e.preventDefault(); sc.run()
+})
+function renderShortcuts() {
+  const box = $('shortcutList'); box.replaceChildren()
+  const rows = [...SHORTCUTS.map(s => [s.keys, s.label, s.alt]),
+    [['↑', '↓'], 'Move through the results while searching'], [['Enter'], 'Apply the highlighted script'], [['Esc'], 'Leave the search']]
+  for (const [keys, label, alt] of rows) {
+    const row = document.createElement('div'); row.className = 'sc'
+    const k = document.createElement('span'); k.className = 'keys'
+    const combo = ks => ks.forEach((x, i) => { if (i) k.append(' '); const kb = document.createElement('kbd'); kb.textContent = x; k.append(kb) })
+    combo(keys); if (alt) { k.append(' or '); combo(alt) }
+    const l = document.createElement('span'); l.textContent = label
+    row.append(k, l); box.append(row)
+  }
+}
+renderShortcuts()
 
 // ---------- settings ----------
 const settings = $('settings')

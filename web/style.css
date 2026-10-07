@@ -145,3 +145,7 @@ section button + label { margin-top: 16px; }
 @media (prefers-reduced-motion: reduce) { .overlay:not([hidden]) .sheet { animation: none; } }
 #version { margin: 12px 0 0; }
 .sicon { flex: none; width: 24px; height: 24px; background: var(--muted); -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
+.sc { display: flex; gap: 12px; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.sc:first-child { border-top: 0; }
+.sc .keys { flex: none; min-width: 210px; color: var(--muted); }
+kbd { font: 12px/1 ui-monospace, Menlo, monospace; background: var(--panel); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 2px 5px; color: var(--fg); }
