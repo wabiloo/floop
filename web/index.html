@@ -30,11 +30,11 @@
       <button id="settingsBtn" aria-label="Settings"><svg class="i"><use href="#i-gear"/></svg></button>
     </div>
   </header>
-  <div id="status" role="status" aria-live="polite"></div>
   </div>
   <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"
             placeholder="Type or paste text, then pick a script below…"></textarea>
   <footer id="scripts">
+    <div id="statusWrap"><div id="status" role="status" aria-live="polite"></div></div>
     <div id="results" role="listbox"></div>
     <div id="searchwrap"><div id="searchrow"><svg class="i"><use href="#i-search"/></svg>
       <input id="query" type="search" placeholder="Search scripts…" autocomplete="off" autocapitalize="off"
