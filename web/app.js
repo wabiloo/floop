@@ -89,6 +89,7 @@ ed.addEventListener('input', () => { clearTimeout(typeTimer); typeTimer = setTim
 $('clear').onclick = () => {
   if (!ed.value) return ed.focus()
   clearTimeout(typeTimer); pushHistory()      // so ↶ brings it back
+  snapshotBody('Cleared')
   setText('', 0, 0); pushHistory(); persistText(); ed.focus()
   setStatus('info', 'Cleared. Tap {undo} to undo')
 }
@@ -145,7 +146,7 @@ $('paste').onclick = async () => {
     pushHistory()
     const s = ed.selectionStart, e = ed.selectionEnd
     if (e > s) setText(ed.value.slice(0, s) + t + ed.value.slice(e), s, s + t.length)
-    else setText(t, t.length, t.length)
+    else { snapshotBody('Pasted over'); setText(t, t.length, t.length) }
     pushHistory(); persistText()
   } catch { ed.focus(); setStatus('error', 'Clipboard blocked: long-press the editor and choose Paste') }
 }
@@ -257,6 +258,15 @@ q.addEventListener('keydown', e => {
 // ---------- saved texts ----------
 // Named bodies of text kept on this device (IndexedDB). Saving under an existing name updates it.
 let texts = []
+let autosaves = []               // automatic snapshots of text about to be replaced, newest first (max 20)
+const MAX_AUTOSAVES = 20
+function snapshotBody(reason) {
+  const text = ed.value
+  if (!text.trim() || autosaves[0]?.text === text) return
+  if (texts.some(t => t.text === text && t.id === currentSaved)) return   // already kept under a name
+  autosaves = [{ id: crypto.randomUUID(), text, ts: Date.now(), reason }, ...autosaves.filter(x => x.text !== text)].slice(0, MAX_AUTOSAVES)
+  kvSet('autosaves', autosaves)
+}
 let currentSaved = null          // id of the saved text the editor was last loaded from / saved as
 const saveDlg = $('saveDlg'), saveName = $('saveName'), saveMsg = $('saveMsg'), openDlg = $('openDlg'), openFilter = $('openFilter')
 const persistTexts = () => kvSet('texts', texts)
@@ -294,6 +304,7 @@ async function doSave() {
 }
 function loadSaved(t) {
   clearTimeout(typeTimer); pushHistory()
+  if (ed.value !== t.text) snapshotBody('Opened over')
   setText(t.text, 0, 0); pushHistory(); persistText()
   currentSaved = t.id
   openDlg.hidden = true
@@ -305,12 +316,21 @@ function savedMatches(query) {
   return texts.filter(t => t.name.toLowerCase().includes(s) || (s.length >= 3 && t.text.toLowerCase().includes(s)))
     .sort((a, b) => b.updated - a.updated)
 }
+function restoreAuto(x) {
+  clearTimeout(typeTimer); pushHistory()
+  if (ed.value !== x.text) snapshotBody('Restored over')
+  setText(x.text, 0, 0); pushHistory(); persistText()
+  currentSaved = null
+  openDlg.hidden = true; ed.focus()
+  setStatus('success', 'Restored an auto-saved text. Tap {undo} to go back')
+}
 function openSaved() {
   openFilter.value = ''; renderSavedList()
   openDlg.hidden = false
   if (desktop.matches) openFilter.focus()
 }
 function renderSavedList() {
+  renderAutoList()
   const box = $('savedList'); box.replaceChildren()
   const f = openFilter.value.trim()
   const list = f ? savedMatches(f) : [...texts].sort((a, b) => b.updated - a.updated)
@@ -341,6 +361,23 @@ function renderSavedList() {
       await persistTexts(); renderSavedList(); renderResults()
     }
     row.append(txt, ren, del); box.append(row)
+  }
+}
+function renderAutoList() {
+  const box = $('autoList'); box.replaceChildren()
+  const f = openFilter.value.trim().toLowerCase()
+  const list = autosaves.filter(x => !f || x.text.toLowerCase().includes(f))
+  $('autoHead').hidden = !autosaves.length
+  if (!list.length) { if (autosaves.length) { const p = document.createElement('p'); p.className = 'hint'; p.textContent = 'No matches'; box.append(p) } return }
+  for (const x of list) {
+    const row = document.createElement('div'); row.className = 'saved'
+    const txt = document.createElement('div'); txt.className = 't'
+    const n = document.createElement('div'); n.className = 'n'; n.textContent = x.text.replace(/\s+/g, ' ').trim().slice(0, 50)
+    const d = document.createElement('div'); d.className = 'd'; d.textContent = `${x.reason} · ${fmtDate(x.ts)} · ${x.text.length.toLocaleString()} chars`
+    txt.append(n, d); txt.onclick = () => restoreAuto(x)
+    const del = document.createElement('button'); del.textContent = 'Delete'
+    del.onclick = () => { autosaves = autosaves.filter(y => y !== x); kvSet('autosaves', autosaves); renderAutoList() }
+    row.append(txt, del); box.append(row)
   }
 }
 $('save').onclick = openSave
@@ -405,6 +442,7 @@ async function fetchInto(url, fail) {
     if (!r.ok) return fail(`${r.status} ${r.statusText}`.trim() + (body ? `: ${body.slice(0, 200)}` : ''))
     ls.set('fetchUrl', url)
     clearTimeout(typeTimer); pushHistory()
+    snapshotBody('Fetched over')
     setText(body, 0, 0); pushHistory(); persistText()
     fetchDlg.hidden = true; ed.focus()
     setStatus('success', `Fetched ${body.length.toLocaleString()} characters. Tap {undo} to go back`)
@@ -880,6 +918,7 @@ async function boot() {
   caches = (await kvGet('caches')) || {}
   local = (await kvGet('local')) || { files: {} }
   texts = (await kvGet('texts')) || []
+  autosaves = (await kvGet('autosaves')) || []
   const want = new Set(sources.map(sourceKey))
   const have = Object.keys(caches).filter(k => want.has(k))
   if (!have.length) {

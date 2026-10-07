@@ -159,3 +159,4 @@ kbd { font: 12px/1 ui-monospace, Menlo, monospace; background: var(--panel); bor
 .saved button { min-height: 34px; padding: 6px 10px; font-size: 14px; }
 #saveName { width: 100%; }
 @media (max-width: 420px) { .hbtns button { width: 34px; } .hbtns, .hl { gap: 0; } header { padding-left: 8px; padding-right: 8px; } }
+#autoHead { font-size: 14px; margin: 20px 0 2px; } #autoHead .sub { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 6px; }
