@@ -32,7 +32,9 @@ const runner = new Runner(key => {
 let statusTimer
 function setStatus(type, message) {
   const s = $('status')
-  s.className = type; s.replaceChildren()
+  clearTimeout(statusTimer)
+  if (!message) { s.classList.remove('show'); return }
+  s.className = type + ' show'; s.replaceChildren()
   // {undo} in a message becomes the same Font Awesome icon as the toolbar button
   message.split('{undo}').forEach((part, i) => {
     if (i) {
@@ -41,8 +43,7 @@ function setStatus(type, message) {
     }
     s.append(part)
   })
-  clearTimeout(statusTimer)
-  if (message) statusTimer = setTimeout(() => { s.textContent = ''; s.className = '' }, type === 'error' ? 10000 : 5000)
+  statusTimer = setTimeout(() => s.classList.remove('show'), type === 'error' ? 8000 : 4000)
 }
 
 // ---------- undo history ----------
