@@ -132,10 +132,14 @@ section button + label { margin-top: 16px; }
   .item:first-child { border-top: 0; }
   .item { padding-top: 6px; padding-bottom: 6px; }
 
-  /* Sheets become centred dialogs instead of full-width bottom sheets. */
-  .overlay { justify-content: center; align-items: center; }
-  .sheet, .sheet.tall { width: min(640px, calc(100% - 48px)); border-radius: 16px; border-top-width: 2px; max-height: 86%; }
-  .sheet.tall { height: 86%; }
+  /* Sheets rise from the bottom of the editor column; the script list on the right stays usable. */
+  .overlay { width: calc(100% - 400px); }
+  .sheet, .sheet.tall { width: 100%; }
+}
 }
 #newScript { width: 100%; }
 .gbody .or { margin: 16px 0 4px; } .gbody .or + label { margin-top: 8px; }
+
+@keyframes sheetUp { from { transform: translateY(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+.overlay:not([hidden]) .sheet { animation: sheetUp .22s ease; }
+@media (prefers-reduced-motion: reduce) { .overlay:not([hidden]) .sheet { animation: none; } }
