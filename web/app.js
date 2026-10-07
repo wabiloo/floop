@@ -241,6 +241,41 @@ q.addEventListener('keydown', e => {
   else if (e.key === 'Escape') { q.value = ''; q.blur(); renderResults(); if (desktop.matches) ed.focus() }
 })
 
+// ---------- fetch a URL into the editor ----------
+const fetchDlg = $('fetchDlg'), fetchUrl = $('fetchUrl'), fetchMsg = $('fetchMsg')
+function openFetch() {
+  const sel = ed.value.slice(ed.selectionStart, ed.selectionEnd).trim()
+  fetchUrl.value = /^https?:\/\/\S+$/i.test(sel) ? sel : ls.get('fetchUrl', '')
+  fetchMsg.textContent = ''; fetchMsg.className = 'hint'
+  fetchDlg.hidden = false; fetchUrl.focus(); fetchUrl.select()
+}
+function closeFetch() { fetchDlg.hidden = true; if (desktop.matches) ed.focus() }
+async function doFetch() {
+  const url = fetchUrl.value.trim()
+  if (!/^https?:\/\//i.test(url)) { fetchMsg.className = 'hint error'; fetchMsg.textContent = 'Enter a full http:// or https:// URL'; return }
+  const go = $('fetchGo'); go.disabled = true
+  fetchMsg.className = 'hint'; fetchMsg.textContent = 'Fetching…'
+  try {
+    const r = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(20000) })
+    const body = await r.text()
+    if (!r.ok) { fetchMsg.className = 'hint error'; fetchMsg.textContent = `${r.status} ${r.statusText}`.trim() + (body ? `: ${body.slice(0, 200)}` : ''); return }
+    ls.set('fetchUrl', url)
+    clearTimeout(typeTimer); pushHistory()
+    setText(body, 0, 0); pushHistory(); persistText()
+    fetchDlg.hidden = true; ed.focus()
+    setStatus('success', `Fetched ${body.length.toLocaleString()} characters. Tap {undo} to go back`)
+  } catch (err) {
+    fetchMsg.className = 'hint error'
+    fetchMsg.textContent = err.name === 'TimeoutError' ? 'Timed out after 20 seconds'
+      : "Couldn't fetch it: the server may be down, or it doesn't allow requests from other sites (CORS)"
+  } finally { go.disabled = false }
+}
+$('fetch').onclick = openFetch
+$('fetchCancel').onclick = closeFetch
+$('fetchGo').onclick = doFetch
+fetchDlg.querySelector('.scrim').onclick = closeFetch
+fetchUrl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doFetch() } else if (e.key === 'Escape') closeFetch() })
+
 // ---------- keyboard shortcuts (desktop) ----------
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
 const MOD = isMac ? '⌘' : 'Ctrl'
@@ -249,6 +284,8 @@ const SHORTCUTS = [
     run() { q.focus(); q.select() }, anywhere: true },
   { el: 'again', keys: [MOD, 'Enter'], label: 'Apply the last script again', test: e => e.key === 'Enter' && !e.shiftKey,
     run() { if (lastScript) runScript(lastScript).then(() => { if (desktop.matches) ed.focus() }); else setStatus('info', 'No script applied yet') }, anywhere: true },
+  { el: 'fetch', keys: [MOD, 'Shift', 'U'], label: 'Fetch a URL into the editor (GET)', test: e => e.key.toLowerCase() === 'u' && e.shiftKey,
+    run() { openFetch() }, anywhere: true },
   { el: 'undo', keys: [MOD, 'Z'], label: 'Undo', test: e => e.key.toLowerCase() === 'z' && !e.shiftKey,
     run() { pushHistory(); restore(hist.i - 1) } },
   { el: 'redo', keys: [MOD, 'Shift', 'Z'], alt: isMac ? null : [MOD, 'Y'], label: 'Redo',
@@ -259,7 +296,7 @@ const SHORTCUTS = [
 ]
 document.addEventListener('keydown', e => {
   if (!(isMac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey) || e.altKey || e.isComposing) return
-  if (!settings.hidden || !$('scriptEditor').hidden) return          // leave dialogs alone
+  if (!settings.hidden || !$('scriptEditor').hidden || !fetchDlg.hidden) return          // leave dialogs alone
   const t = e.target, inEditor = t === ed || t === document.body
   const sc = SHORTCUTS.find(s => s.test(e))
   if (!sc || (!sc.anywhere && !inEditor)) return                     // other fields keep their native undo etc.
