@@ -1,5 +1,5 @@
 // Offline shell: precache the app, serve it cache-first, refresh in the background.
-const CACHE = 'floop-v12'
+const CACHE = 'floop-v13'
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'scripts.js', 'worker.js', 'manifest.webmanifest',
   'vendor/fuse.min.mjs', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png', 'scripts-bundle.json']
 

@@ -100,6 +100,15 @@
   <div class="sheet tall">
     <div class="sheethead"><h2 id="ceTitle">New script</h2><button id="ceCancel">Close</button></div>
     <div class="sheetbody">
+      <details id="ask">
+        <summary>Ask an AI to write it</summary>
+        <p class="hint">Describe the script, copy the prompt, paste it into Claude, ChatGPT or any chat app, then copy its reply and paste it back here.</p>
+        <textarea id="askText" rows="3" placeholder="e.g. Turn each line into a quoted, comma-separated SQL IN list"></textarea>
+        <div class="row">
+          <button id="askCopy">1. Copy prompt</button>
+          <button id="askPaste">2. Paste reply</button>
+        </div>
+      </details>
       <textarea id="ceCode" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
       <p id="ceMsg" class="hint"></p>
       <pre id="ceOut" aria-label="Test output"></pre>

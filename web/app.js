@@ -318,6 +318,7 @@ function openScriptEditor(file, code) {
   $('cePublish').hidden = !token; $('pubRow').hidden = !token
   const pt = $('pubTarget'); pt.replaceChildren(...sources.filter(s => s.repo.includes('/')).map((s, i) => new Option(`${s.repo}@${s.branch}/${s.path}`, i)))
   pt.value = pt.options.length - 1   // default to the last source (the custom-scripts folder in the defaults)
+  $('askText').value = ''; $('ask').open = !file && code === undefined
   ceOut.textContent = ''; ceMsg.textContent = ''; ceMsg.className = 'hint'
   sheet.hidden = false
   if (!file && code === undefined) { codeArea.focus(); codeArea.setSelectionRange(0, 0) }
@@ -371,6 +372,55 @@ $('ceDelete').onclick = async () => {
 $('ceCancel').onclick = () => { sheet.hidden = true }
 sheet.querySelector('.scrim').onclick = () => { sheet.hidden = true }
 $('newScript').onclick = () => openScriptEditor()
+
+
+// ---------- "Ask an AI": copy a ready-made prompt, paste the reply back ----------
+const SPEC = `You write scripts for Boop, a text-transformation tool. A script is a single JavaScript file with this exact shape:
+
+/**
+  {
+    "api": 1,
+    "name": "Short Name",
+    "description": "One sentence on what it does",
+    "author": "",
+    "icon": "metamorphose",
+    "tags": "comma,separated,search,words"
+  }
+**/
+
+function main(state) {
+  // transform state.text and assign it back
+}
+
+Rules:
+- The header comment must be valid JSON (double quotes, no trailing commas) between "/**" and "**/".
+- "state" has: state.text (the selection if there is one, otherwise the whole text: read and assign it), state.fullText (always the whole text), state.selection, state.isSelection, state.insert(str) (insert at the caret), state.postInfo(msg) (show a short message), state.postError(msg) (show an error).
+- Plain vanilla JavaScript only. No DOM, no window, no Node APIs, no import/export, no fetch.
+- Built-in helpers can be loaded with require: '@boop/base64' ({encode, decode}), '@boop/he' (HTML entities), '@boop/lodash.boop' (camelCase, kebabCase, snakeCase, startCase, deburr, escapeRegExp, size), '@boop/vkBeautify' (xml, css, sql and their *min versions), '@boop/js-yaml', '@boop/hashes', '@boop/papaparse.js'.
+- On bad input, call state.postError("…") and leave state.text unchanged.
+- Reply with the complete script in one code block and nothing else.`
+
+$('askCopy').onclick = async () => {
+  const req = $('askText').value.trim()
+  if (!req) return ceSay('error', 'Describe what the script should do first')
+  const cur = codeArea.value.trim() && codeArea.value !== TEMPLATE
+    ? `\n\nHere is my current version, which you should modify:\n\n${codeArea.value}` : ''
+  const prompt = `${SPEC}\n\nWrite a Boop script that does this: ${req}${cur}`
+  try { await navigator.clipboard.writeText(prompt); ceSay('success', 'Prompt copied. Paste it into your AI app, then come back and tap "Paste reply".') }
+  catch { ceSay('error', 'Clipboard blocked. Tap again, or allow clipboard access.') }
+}
+
+$('askPaste').onclick = async () => {
+  let t
+  try { t = await navigator.clipboard.readText() } catch { return ceSay('error', 'Clipboard blocked. Long-press the code box and choose Paste instead.') }
+  const fence = t.match(/```[a-zA-Z]*\n([\s\S]*?)```/)
+  const code = (fence ? fence[1] : t).trim() + '\n'
+  if (!parseMeta(code)) return ceSay('error', "That doesn't look like a Boop script (no /** {json} **/ header). Copy the AI's whole reply and try again.")
+  if (codeArea.value.trim() && codeArea.value !== TEMPLATE && !confirm('Replace the code in the editor?')) return
+  codeArea.value = code
+  $('ask').open = false
+  ceSay('info', 'Pasted. Tap Test to try it on your text, then Save.')
+}
 
 // Publish: commit the script into one of the configured GitHub sources (needs a token with write access).
 $('cePublish').onclick = async () => {

@@ -74,3 +74,6 @@ a { color: var(--accent); }
 select { display: block; width: 100%; margin-top: 4px; padding: 10px; font-size: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--fg); }
 .lrow { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
 section button + label { margin-top: 16px; }
+#ask { margin: 0 0 12px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+#ask summary { font-weight: 600; cursor: pointer; }
+#askText { width: 100%; margin-top: 4px; padding: 10px; font: 16px/1.4 -apple-system, system-ui, sans-serif; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--fg); resize: none; }
