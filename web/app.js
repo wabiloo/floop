@@ -174,6 +174,7 @@ function renderResults() {
     shown = [...rec, ...search('*').filter(s => !rec.includes(s))]
   } else shown = search(query)
   if (favOnly) shown = shown.filter(s => favs.has(s.id))
+  else if (query) shown = [...shown, ...savedMatches(query).map(t => ({ kind: 'saved', t }))]
   sel = 0
   results.replaceChildren()
   if (!shown.length) {
@@ -185,6 +186,17 @@ function renderResults() {
     const el = document.createElement('div')
     el.className = 'item' + (i === 0 && query ? ' sel' : '')
     el.setAttribute('role', 'option')
+    if (s.kind === 'saved') {
+      const doc = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), use = document.createElementNS('http://www.w3.org/2000/svg', 'use')
+      doc.setAttribute('class', 'i doc'); use.setAttribute('href', '#i-doc'); doc.append(use)
+      const n = document.createElement('div'); n.className = 'n'; n.textContent = s.t.name
+      const d = document.createElement('div'); d.className = 'd'; d.textContent = savedMeta(s.t)
+      const txt = document.createElement('div'); txt.className = 't'; txt.append(n, d)
+      el.append(doc, txt)
+      el.addEventListener('pointerdown', e => e.preventDefault())
+      el.onclick = () => choose(s)
+      results.append(el); return
+    }
     const n = document.createElement('div'); n.className = 'n'; n.textContent = s.name
     const d = document.createElement('div'); d.className = 'd'; d.textContent = (s.source === 'local' ? 'On this device · ' : '') + s.description
     const txt = document.createElement('div'); txt.className = 't'; txt.append(n, d)
@@ -212,6 +224,7 @@ function renderResults() {
 const desktop = matchMedia('(hover: hover) and (pointer: fine)')
 function choose(s) {
   q.value = ''; q.blur()
+  if (s.kind === 'saved') { loadSaved(s.t); renderResults(); return }
   runScript(s).then(() => { renderResults(); if (desktop.matches) ed.focus() })
 }
 function moveSel(d) {
@@ -240,6 +253,108 @@ q.addEventListener('keydown', e => {
   }
   else if (e.key === 'Escape') { q.value = ''; q.blur(); renderResults(); if (desktop.matches) ed.focus() }
 })
+
+// ---------- saved texts ----------
+// Named bodies of text kept on this device (IndexedDB). Saving under an existing name updates it.
+let texts = []
+let currentSaved = null          // id of the saved text the editor was last loaded from / saved as
+const saveDlg = $('saveDlg'), saveName = $('saveName'), saveMsg = $('saveMsg'), openDlg = $('openDlg'), openFilter = $('openFilter')
+const persistTexts = () => kvSet('texts', texts)
+const fmtDate = t => new Date(t).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+const savedMeta = t => `Saved · ${fmtDate(t.updated)} · ${t.text.length.toLocaleString()} characters`
+const findSaved = name => texts.find(t => t.name.toLowerCase() === name.trim().toLowerCase())
+function suggestName() {
+  const cur = texts.find(t => t.id === currentSaved)
+  if (cur) return cur.name
+  const first = ed.value.split('\n').find(l => l.trim()) || ''
+  return first.trim().slice(0, 40)
+}
+function openSave() {
+  if (!ed.value) return setStatus('info', 'Nothing to save: the editor is empty')
+  saveName.value = suggestName(); updateSaveMsg()
+  saveDlg.hidden = false; saveName.focus(); saveName.select()
+}
+function updateSaveMsg() {
+  const ex = findSaved(saveName.value)
+  saveMsg.className = 'hint'
+  saveMsg.textContent = ex ? `“${ex.name}” already exists: saving replaces it.` : `Saves the whole text (${ed.value.length.toLocaleString()} characters) on this device.`
+}
+function closeSave() { saveDlg.hidden = true; if (desktop.matches) ed.focus() }
+async function doSave() {
+  const name = saveName.value.trim()
+  if (!name) { saveMsg.className = 'hint error'; saveMsg.textContent = 'Give it a name'; return }
+  let t = findSaved(name)
+  if (t) { t.text = ed.value; t.updated = Date.now() }
+  else { t = { id: crypto.randomUUID(), name, text: ed.value, updated: Date.now() }; texts.push(t) }
+  currentSaved = t.id
+  await persistTexts()
+  saveDlg.hidden = true; if (desktop.matches) ed.focus()
+  renderResults()
+  setStatus('success', `Saved “${t.name}”`)
+}
+function loadSaved(t) {
+  clearTimeout(typeTimer); pushHistory()
+  setText(t.text, 0, 0); pushHistory(); persistText()
+  currentSaved = t.id
+  openDlg.hidden = true
+  ed.focus()
+  setStatus('success', `Opened “${t.name}”. Tap {undo} to go back`)
+}
+function savedMatches(query) {
+  const s = query.toLowerCase()
+  return texts.filter(t => t.name.toLowerCase().includes(s) || (s.length >= 3 && t.text.toLowerCase().includes(s)))
+    .sort((a, b) => b.updated - a.updated)
+}
+function openSaved() {
+  openFilter.value = ''; renderSavedList()
+  openDlg.hidden = false
+  if (desktop.matches) openFilter.focus()
+}
+function renderSavedList() {
+  const box = $('savedList'); box.replaceChildren()
+  const f = openFilter.value.trim()
+  const list = f ? savedMatches(f) : [...texts].sort((a, b) => b.updated - a.updated)
+  if (!list.length) {
+    const p = document.createElement('p'); p.className = 'hint'
+    p.textContent = texts.length ? 'No matches' : 'Nothing saved yet. Use the save button (or ' + MOD + '+S) to keep the current text.'
+    box.append(p); return
+  }
+  for (const t of list) {
+    const row = document.createElement('div'); row.className = 'saved'
+    const txt = document.createElement('div'); txt.className = 't'
+    const n = document.createElement('div'); n.className = 'n'; n.textContent = t.name
+    const d = document.createElement('div'); d.className = 'd'
+    d.textContent = `${fmtDate(t.updated)} · ${t.text.length.toLocaleString()} chars · ${t.text.replace(/\s+/g, ' ').trim().slice(0, 60)}`
+    txt.append(n, d); txt.onclick = () => loadSaved(t)
+    const ren = document.createElement('button'); ren.textContent = 'Rename'
+    ren.onclick = async () => {
+      const nn = (prompt('Rename to:', t.name) || '').trim()
+      if (!nn || nn === t.name) return
+      const clash = findSaved(nn)
+      if (clash && clash !== t) return setStatus('error', `“${clash.name}” already exists`)
+      t.name = nn; await persistTexts(); renderSavedList(); renderResults()
+    }
+    const del = document.createElement('button'); del.textContent = 'Delete'
+    del.onclick = async () => {
+      if (!confirm(`Delete “${t.name}”?`)) return
+      texts = texts.filter(x => x !== t); if (currentSaved === t.id) currentSaved = null
+      await persistTexts(); renderSavedList(); renderResults()
+    }
+    row.append(txt, ren, del); box.append(row)
+  }
+}
+$('save').onclick = openSave
+$('open').onclick = openSaved
+$('saveCancel').onclick = closeSave
+$('saveGo').onclick = doSave
+saveDlg.querySelector('.scrim').onclick = closeSave
+saveName.addEventListener('input', updateSaveMsg)
+saveName.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doSave() } else if (e.key === 'Escape') closeSave() })
+const closeOpen = () => { openDlg.hidden = true; if (desktop.matches) ed.focus() }
+$('openClose').onclick = closeOpen
+openDlg.querySelector('.scrim').onclick = closeOpen
+openFilter.addEventListener('input', renderSavedList)
+openFilter.addEventListener('keydown', e => { if (e.key === 'Escape') closeOpen() })
 
 // ---------- fetch a URL into the editor ----------
 const fetchDlg = $('fetchDlg'), fetchUrl = $('fetchUrl'), fetchMsg = $('fetchMsg'), fetchHeaders = $('fetchHeaders')
@@ -325,6 +440,10 @@ const SHORTCUTS = [
     run() { if (lastScript) runScript(lastScript).then(() => { if (desktop.matches) ed.focus() }); else setStatus('info', 'No script applied yet') }, anywhere: true },
   { el: 'fetch', keys: [MOD, 'Shift', 'U'], label: 'Fetch a URL into the editor (uses a selected or caret URL, else asks)', test: e => e.key.toLowerCase() === 'u' && e.shiftKey,
     run() { openFetch() }, anywhere: true },
+  { el: 'save', keys: [MOD, 'S'], label: 'Save the text under a name', test: e => e.key.toLowerCase() === 's' && !e.shiftKey,
+    run() { openSave() }, anywhere: true },
+  { el: 'open', keys: [MOD, 'O'], label: 'Open a saved text', test: e => e.key.toLowerCase() === 'o' && !e.shiftKey,
+    run() { openSaved() }, anywhere: true },
   { el: 'undo', keys: [MOD, 'Z'], label: 'Undo', test: e => e.key.toLowerCase() === 'z' && !e.shiftKey,
     run() { pushHistory(); restore(hist.i - 1) } },
   { el: 'redo', keys: [MOD, 'Shift', 'Z'], alt: isMac ? null : [MOD, 'Y'], label: 'Redo',
@@ -335,7 +454,7 @@ const SHORTCUTS = [
 ]
 document.addEventListener('keydown', e => {
   if (!(isMac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey) || e.altKey || e.isComposing) return
-  if (!settings.hidden || !$('scriptEditor').hidden || !fetchDlg.hidden) return          // leave dialogs alone
+  if ([settings, $('scriptEditor'), fetchDlg, saveDlg, openDlg].some(d => !d.hidden)) return          // leave dialogs alone
   const t = e.target, inEditor = t === ed || t === document.body
   const sc = SHORTCUTS.find(s => s.test(e))
   if (!sc || (!sc.anywhere && !inEditor)) return                     // other fields keep their native undo etc.
@@ -760,6 +879,7 @@ async function boot() {
 
   caches = (await kvGet('caches')) || {}
   local = (await kvGet('local')) || { files: {} }
+  texts = (await kvGet('texts')) || []
   const want = new Set(sources.map(sourceKey))
   const have = Object.keys(caches).filter(k => want.has(k))
   if (!have.length) {

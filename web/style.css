@@ -149,3 +149,13 @@ section button + label { margin-top: 16px; }
 .sc:first-child { border-top: 0; }
 .sc .keys { flex: none; min-width: 210px; color: var(--muted); }
 kbd { font: 12px/1 ui-monospace, Menlo, monospace; background: var(--panel); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 2px 5px; color: var(--fg); }
+.hl { gap: 4px; }
+.item .doc { flex: none; width: 24px; height: 24px; color: var(--muted); }
+#openFilter { width: 100%; margin: 12px 0 4px; }
+.saved { display: flex; align-items: center; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); }
+.saved:first-child { border-top: 0; }
+.saved .t { flex: 1; min-width: 0; cursor: pointer; }
+.saved .n { font-weight: 600; } .saved .d { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.saved button { min-height: 34px; padding: 6px 10px; font-size: 14px; }
+#saveName { width: 100%; }
+@media (max-width: 420px) { .hbtns button { width: 34px; } .hbtns, .hl { gap: 0; } header { padding-left: 8px; padding-right: 8px; } }
