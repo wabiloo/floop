@@ -119,11 +119,12 @@ section button + label { margin-top: 16px; }
 
 /* Wide screens: editor on the left, script list on the right. */
 @media (min-width: 860px) {
-  #app { display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: auto minmax(0, 1fr) auto;
-    grid-template-areas: "top list" "editor list" "status list"; }
+  #app { display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "top list" "status list" "editor list"; }
   #top { grid-area: top; }
   #editor { grid-area: editor; min-height: 0; padding: 16px 20px; }
-  #status { grid-area: status; }
+  #status { grid-area: status; border-top-width: 0 !important; border-bottom: 0 solid var(--line-mid); }
+  #status.show { border-bottom-width: 1px; }
   #scripts { grid-area: list; min-height: 0; border-top: 0; border-left: 2px solid var(--line-strong); box-shadow: none; }
   #scripts #results { order: 1; flex-direction: column; flex: 1; height: auto; max-height: none; min-height: 0; }
   #searchrow, #scripts #searchwrap { order: 0; }
