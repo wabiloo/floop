@@ -4,7 +4,8 @@ const BUILD = '__BUILD__'
 const CACHE = 'floop-' + BUILD
 const CORE = ['./', 'index.html', 'style.css', 'app.js', 'scripts.js', 'worker.js', 'manifest.webmanifest',
   'vendor/fuse.min.mjs', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png']
-const OPTIONAL = ['scripts-bundle.json']   // absent in local dev builds
+const ICONS = '__ICONS__'.split(',').filter(u => u.startsWith('icons/'))   // listed by build.mjs
+const OPTIONAL = ['scripts-bundle.json', ...ICONS]   // absent in local dev builds
 
 self.addEventListener('install', e => {
   e.waitUntil((async () => {

@@ -144,3 +144,4 @@ section button + label { margin-top: 16px; }
 .overlay:not([hidden]) .sheet { animation: sheetUp .22s ease; }
 @media (prefers-reduced-motion: reduce) { .overlay:not([hidden]) .sheet { animation: none; } }
 #version { margin: 12px 0 0; }
+.sicon { flex: none; width: 24px; height: 24px; background: var(--muted); -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }

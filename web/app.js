@@ -7,6 +7,18 @@ const ls = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch { /* private mode */ } },
 }
 
+// ---------- script icons ----------
+// Boop's own icon set (Icons8, converted to SVG under icons/scripts). A script's "icon" names one of
+// these; anything else (e.g. an SF Symbol name, which only exists on macOS) gets the 'unknown' icon.
+const SCRIPT_ICONS = new Set(["abacus", "broom", "camel", "collapse", "color-wheel", "colosseum", "command", "counter", "dice", "elephant", "filtration", "fingerprint", "flask", "flip", "globe", "html", "identification", "kebab", "link", "metamorphose", "percentage", "pineapple", "quote", "roman", "scissors", "snake", "sort-characters", "sort-numbers", "table", "term", "translation", "type", "unknown", "watch", "website"])
+function scriptIcon(name) {
+  const i = document.createElement('span')
+  i.className = 'sicon'
+  i.style.setProperty('--icon', `url(icons/scripts/${SCRIPT_ICONS.has(name) ? name : 'unknown'}.svg)`)
+  i.setAttribute('aria-hidden', 'true')
+  return i
+}
+
 // ---------- state ----------
 let sources = ls.get('sources', DEFAULT_SOURCES)
 let token = ls.get('token', '')
@@ -189,7 +201,7 @@ function renderResults() {
       star.firstChild.firstChild.setAttribute('href', on ? '#i-star-fill' : '#i-star')
       if (favOnly && !on) renderResults()
     }
-    el.append(txt, star)
+    el.append(scriptIcon(s.icon), txt, star)
     // Keep the editor focused/selected: don't let the tap steal focus before we run.
     el.addEventListener('pointerdown', e => e.preventDefault())
     el.onclick = () => choose(s)
