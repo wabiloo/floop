@@ -45,8 +45,19 @@
   <div class="sheet tall">
     <div class="sheethead"><h2>Settings</h2><button id="closeSettings">Done</button></div>
     <div class="sheetbody">
-      <section>
-        <h3>Script sources</h3>
+      <details class="grp"><summary><span>My scripts</span><span class="sub" id="subMine"></span></summary>
+<div class="gbody">
+        <p class="hint">Write your own, or import one from a link. They're kept on this device, and can be published to GitHub (needs a token above).</p>
+        <div id="localList"></div>
+        <button id="newScript" class="primary">+ New script</button>
+        <label>Import from a link (raw .js or a github.com file page)
+          <input id="importInput" type="url" placeholder="https://github.com/…/Script.js" autocapitalize="off" autocorrect="off">
+        </label>
+        <button id="importUrl">Import</button>
+      </div>
+      </details>
+      <details class="grp"><summary><span>Script sources</span><span class="sub" id="subSources"></span></summary>
+<div class="gbody">
         <p class="hint">GitHub folders to load <code>.js</code> scripts from. Subfolders (e.g. <code>lib/</code>) are used for <code>require()</code>.</p>
         <div id="sources"></div>
         <button id="addSource">+ Add source</button>
@@ -58,9 +69,10 @@
           <button id="resetSources">Reset sources</button>
         </div>
         <p id="syncInfo" class="hint"></p>
-      </section>
-      <section>
-        <h3>AI providers</h3>
+      </div>
+      </details>
+      <details class="grp"><summary><span>AI providers</span><span class="sub" id="subAi"></span></summary>
+<div class="gbody">
         <p class="hint">Optional. With a key, the script editor can write scripts for you directly. Keys stay on this device and are sent only to the provider. Use a key with a spending limit.</p>
         <label>Anthropic (Claude) API key
           <input id="keyAnthropic" type="password" autocomplete="off" placeholder="sk-ant-…">
@@ -74,19 +86,10 @@
         <label>OpenAI model
           <input id="modelOpenai" autocapitalize="off" autocorrect="off" spellcheck="false">
         </label>
-      </section>
-      <section>
-        <h3>My scripts</h3>
-        <p class="hint">Write your own, or import one from a link. They're kept on this device, and can be published to GitHub (needs a token above).</p>
-        <div id="localList"></div>
-        <button id="newScript" class="primary">+ New script</button>
-        <label>Import from a link (raw .js or a github.com file page)
-          <input id="importInput" type="url" placeholder="https://github.com/…/Script.js" autocapitalize="off" autocorrect="off">
-        </label>
-        <button id="importUrl">Import</button>
-      </section>
-      <section>
-        <h3>Shortcuts &amp; links</h3>
+      </div>
+      </details>
+      <details class="grp"><summary><span>Shortcuts &amp; links</span></summary>
+<div class="gbody">
         <p class="hint">Open the app with a link to run a script on some text:</p>
         <pre id="linkEx"></pre>
         <p class="hint"><code>text</code> (or <code>b64</code>, base64url UTF-8), <code>script</code> (name or file),
@@ -96,9 +99,10 @@
           <input id="linkScript" placeholder="Script name, e.g. Base64 Encode">
         </label>
         <button id="copyLink">Copy link template</button>
-      </section>
-      <section id="about">
-        <h3>About Floop</h3>
+      </div>
+      </details>
+      <details class="grp" id="about"><summary><span>About Floop</span></summary>
+<div class="gbody">
         <p class="hint">Floop is Boop for iPhone: a pocket-sized scratchpad for transforming text with small
           JavaScript scripts: format JSON, encode Base64, sort lines, hash, and much more. Type or paste text,
           pick a script, and it rewrites your selection (or everything).</p>
@@ -107,7 +111,8 @@
           Boop works here too. Floop is not affiliated with the Boop project.</p>
         <p class="hint">Source and scripts live in <a href="https://github.com/wabiloo/floop" target="_blank" rel="noopener">wabiloo/floop</a>.
           Built with Claude Code. Icons by Font Awesome Free (CC BY 4.0); fuzzy search by Fuse.js.</p>
-      </section>
+      </div>
+      </details>
     </div>
   </div>
 </div>

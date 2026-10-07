@@ -225,7 +225,14 @@ function renderSources() {
     wrap.append(repo, rm, path); box.append(wrap)
   })
 }
+function updateSubs() {
+  const n = Object.keys(local.files).length
+  $('subSources').textContent = `${scripts.length} scripts`
+  $('subMine').textContent = n ? `${n} on this device` : ''
+  $('subAi').textContent = [ai.keys.anthropic && 'Claude', ai.keys.openai && 'ChatGPT'].filter(Boolean).join(' · ') || 'Not set'
+}
 function updateSyncInfo(extra) {
+  updateSubs()
   const times = Object.values(caches).map(c => c.syncedAt).filter(Boolean)
   const when = times.length ? new Date(Math.max(...times)).toLocaleString() : 'never'
   $('syncInfo').textContent = `${scripts.length} scripts · last synced ${when}${extra ? ' · ' + extra : ''}`

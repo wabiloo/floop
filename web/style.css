@@ -84,3 +84,11 @@ section button + label { margin-top: 16px; }
 .or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
 .or::before, .or::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
 #ask label { margin: 10px 0 0; }
+.grp { border: 1px solid var(--line); border-radius: 12px; margin: 10px 0; background: var(--bg); }
+.grp > summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px; font-weight: 600; font-size: 16px; cursor: pointer; }
+.grp > summary::-webkit-details-marker { display: none; }
+.grp > summary::after { content: "›"; color: var(--muted); font-size: 22px; line-height: 1; transition: transform .15s; margin-left: auto; }
+.grp[open] > summary::after { transform: rotate(90deg); }
+.grp .sub { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: auto; text-align: right; }
+.grp .gbody { padding: 0 14px 14px; }
+#about { border-top: 1px solid var(--line); padding-top: 0; }
