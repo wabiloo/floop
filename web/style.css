@@ -137,3 +137,5 @@ section button + label { margin-top: 16px; }
   .sheet, .sheet.tall { width: min(640px, calc(100% - 48px)); border-radius: 16px; border-top-width: 2px; max-height: 86%; }
   .sheet.tall { height: 86%; }
 }
+#newScript { width: 100%; }
+.gbody .or { margin: 16px 0 4px; } .gbody .or + label { margin-top: 8px; }
