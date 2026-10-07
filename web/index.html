@@ -132,10 +132,14 @@
   <div class="sheet">
     <div class="sheethead"><h2>Fetch URL</h2><button id="fetchCancel">Close</button></div>
     <div class="sheetbody">
-      <p class="hint">Tip: with a URL selected in the text (or the caret in it), the button fetches it straight away. Sends an HTTP GET and replaces the editor text with the response body. The server has to allow requests from other sites (CORS).</p>
+      <p class="hint">Tip: with a URL selected in the text (or the caret in it), the button fetches it straight away; Shift-click it to edit the headers first. Sends an HTTP GET and replaces the editor text with the response body. The server has to allow requests from other sites (CORS).</p>
       <label>URL
         <input id="fetchUrl" type="url" placeholder="https://…" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
       </label>
+      <label>Headers (optional, one <code>Name: value</code> per line)
+        <textarea id="fetchHeaders" rows="3" placeholder="Authorization: Bearer …&#10;Accept: application/json" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+      </label>
+      <p class="hint">Kept on this device and sent with every fetch. Custom headers need the server's CORS settings to allow them.</p>
       <p id="fetchMsg" class="hint"></p>
       <button id="fetchGo" class="primary">Fetch</button>
     </div>

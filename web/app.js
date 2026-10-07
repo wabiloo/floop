@@ -242,7 +242,7 @@ q.addEventListener('keydown', e => {
 })
 
 // ---------- fetch a URL into the editor ----------
-const fetchDlg = $('fetchDlg'), fetchUrl = $('fetchUrl'), fetchMsg = $('fetchMsg')
+const fetchDlg = $('fetchDlg'), fetchUrl = $('fetchUrl'), fetchMsg = $('fetchMsg'), fetchHeaders = $('fetchHeaders')
 const URL_RE = /^https?:\/\/\S+$/i
 // The URL to use without asking: the selection, else the one under the caret, else the whole text if that is a URL.
 function urlInEditor() {
@@ -256,22 +256,36 @@ function urlInEditor() {
   const all = v.trim()
   return URL_RE.test(all) ? all : ''
 }
-function openFetch() {
-  const url = urlInEditor()
-  if (url) return fetchInto(url, msg => setStatus('error', msg))      // a URL is there already: just go
-  showFetchDialog()
+// "Name: value" lines -> Headers (throws on a bad line)
+function parseHeaders(text) {
+  const h = new Headers()
+  for (const line of text.split('\n')) {
+    if (!line.trim()) continue
+    const i = line.indexOf(':')
+    if (i < 1) throw new Error(`Bad header line "${line.trim()}": use Name: value`)
+    try { h.append(line.slice(0, i).trim(), line.slice(i + 1).trim()) }
+    catch { throw new Error(`Invalid header "${line.slice(0, i).trim()}"`) }
+  }
+  return h
 }
-function showFetchDialog() {
-  fetchUrl.value = ls.get('fetchUrl', '')
+function openFetch(e) {
+  const url = urlInEditor()
+  if (url && !(e && e.shiftKey)) return fetchInto(url, msg => setStatus('error', msg))      // a URL is there already: just go
+  showFetchDialog(url)
+}
+function showFetchDialog(url) {
+  fetchUrl.value = url || ls.get('fetchUrl', ''); fetchHeaders.value = ls.get('fetchHeaders', '')
   fetchMsg.textContent = ''; fetchMsg.className = 'hint'
   fetchDlg.hidden = false; fetchUrl.focus(); fetchUrl.select()
 }
 function closeFetch() { fetchDlg.hidden = true; if (desktop.matches) ed.focus() }
 // GET `url` and replace the editor text with the body. `fail(message)` reports problems.
 async function fetchInto(url, fail) {
+  let headers
+  try { headers = parseHeaders(ls.get('fetchHeaders', '')) } catch (err) { return fail(err.message) }
   setStatus('info', 'Fetching…')
   try {
-    const r = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(20000) })
+    const r = await fetch(url, { method: 'GET', headers, signal: AbortSignal.timeout(20000) })
     const body = await r.text()
     if (!r.ok) return fail(`${r.status} ${r.statusText}`.trim() + (body ? `: ${body.slice(0, 200)}` : ''))
     ls.set('fetchUrl', url)
@@ -289,11 +303,13 @@ async function doFetch() {
   const url = fetchUrl.value.trim()
   const say = (cls, m) => { fetchMsg.className = 'hint ' + cls; fetchMsg.textContent = m }
   if (!/^https?:\/\//i.test(url)) return say('error', 'Enter a full http:// or https:// URL')
+  try { parseHeaders(fetchHeaders.value) } catch (err) { return say('error', err.message) }
+  ls.set('fetchHeaders', fetchHeaders.value.trim())
   const go = $('fetchGo'); go.disabled = true
   say('', 'Fetching…')
   try { await fetchInto(url, m => say('error', m)) } finally { go.disabled = false }
 }
-$('fetch').onclick = openFetch
+$('fetch').onclick = openFetch   // (Shift-click always shows the dialog)
 $('fetchCancel').onclick = closeFetch
 $('fetchGo').onclick = doFetch
 fetchDlg.querySelector('.scrim').onclick = closeFetch
