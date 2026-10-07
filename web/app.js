@@ -219,8 +219,12 @@ syncFavBtn()
 q.addEventListener('input', renderResults)
 q.addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); if (shown[sel]) choose(shown[sel]) }
-  else if (e.key === 'ArrowUp') { e.preventDefault(); moveSel(1) }   // list is reversed: up = further away
-  else if (e.key === 'ArrowDown') { e.preventDefault(); moveSel(-1) }
+  else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    e.preventDefault()
+    // On phones the list is reversed (best match nearest the keyboard), on wide screens it reads top-down.
+    const reversed = getComputedStyle(results).flexDirection === 'column-reverse'
+    moveSel((e.key === 'ArrowUp') === reversed ? 1 : -1)
+  }
   else if (e.key === 'Escape') { q.value = ''; q.blur(); renderResults() }
 })
 

@@ -12,6 +12,7 @@ Updates arrive by themselves: each deploy gets its own offline cache, and the ap
 To host your own copy: fork the repo, then **Settings → Pages → Source: GitHub Actions** and run the *Deploy Floop (web)* workflow (or push to `main`). Change `DEFAULT_SOURCES` in `web/scripts.js` to point at your fork.
 
 ## Using it
+- On wide screens (about 860px and up) the editor sits on the left and the script list on the right; settings open as a centred dialog. Phones keep the single-column layout.
 - The footer is always the script list: tap a script to run it, or type in the search box to filter (Enter runs the best match). Empty search shows recents, then everything A–Z.
 - A selection is transformed in place; with no selection the whole text is (or `insert()` goes at the caret).
 - Tap a star to favourite a script (it doesn't change the order); the star button next to the search box shows only favourites.

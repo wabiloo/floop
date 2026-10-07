@@ -116,3 +116,23 @@ section button + label { margin-top: 16px; }
 .or { display: flex; margin: 14px 0; }
 #clear { padding: 0; width: 38px; min-height: 38px; background: transparent; display: grid; place-items: center; }
 .i.inline { width: 14px; height: 14px; vertical-align: -2px; margin: 0 2px; }
+
+/* Wide screens: editor on the left, script list on the right. */
+@media (min-width: 860px) {
+  #app { display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "top list" "editor list" "status list"; }
+  #top { grid-area: top; }
+  #editor { grid-area: editor; min-height: 0; padding: 16px 20px; }
+  #status { grid-area: status; }
+  #scripts { grid-area: list; min-height: 0; border-top: 0; border-left: 2px solid var(--line-strong); box-shadow: none; }
+  #scripts #results { order: 1; flex-direction: column; flex: 1; height: auto; max-height: none; min-height: 0; }
+  #searchrow, #scripts #searchwrap { order: 0; }
+  #searchwrap { margin: 12px; }
+  .item:first-child { border-top: 0; }
+  .item { padding-top: 6px; padding-bottom: 6px; }
+
+  /* Sheets become centred dialogs instead of full-width bottom sheets. */
+  .overlay { justify-content: center; align-items: center; }
+  .sheet, .sheet.tall { width: min(640px, calc(100% - 48px)); border-radius: 16px; border-top-width: 2px; max-height: 86%; }
+  .sheet.tall { height: 86%; }
+}
