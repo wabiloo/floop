@@ -617,7 +617,21 @@ async function boot() {
   rebuild()
   renderResults()
   if (location.hash.length > 1) await handleHash()
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {})
+  $('ver').textContent = (new URL(document.querySelector('script[src*="app.js"]').src).searchParams.get('v') || 'dev')
+  if ('serviceWorker' in navigator) {
+    let controlled = !!navigator.serviceWorker.controller   // false on the very first visit
+    let reloaded = false
+    // A new deploy took over: reload once so the page, styles and scripts all come from it.
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (controlled && !reloaded) { reloaded = true; location.reload() }
+      controlled = true   // the first install claiming this page is not an update
+    })
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      // Home-screen apps are often resumed rather than relaunched; check for updates on every resume.
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}) })
+      reg.update().catch(() => {})
+    }).catch(() => {})
+  }
   if (navigator.onLine) sync(false)
 }
 boot()

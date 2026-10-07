@@ -35,5 +35,6 @@ writeFileSync(join(out, 'scripts-bundle.json'), JSON.stringify({ builtAt: Date.n
 const hash = createHash('sha256')
 for (const p of walk(out).sort()) if (!p.endsWith('sw.js')) hash.update(p).update(readFileSync(p))
 const swPath = join(out, 'sw.js')
-writeFileSync(swPath, readFileSync(swPath, 'utf8').replace('__BUILD__', hash.digest('hex').slice(0, 12)))
+const build = hash.digest('hex').slice(0, 12)
+for (const f of [swPath, join(out, 'index.html')]) writeFileSync(f, readFileSync(f, 'utf8').replaceAll('__BUILD__', build))
 console.log(`Built ${out}: ${Object.values(sources).reduce((n, f) => n + Object.keys(f).length, 0)} script files`)
