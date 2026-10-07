@@ -95,11 +95,12 @@ section button + label { margin-top: 16px; }
 
 /* Flat lists: hairlines instead of nested cards, so content keeps the full width. */
 .sheetbody { padding: 0 16px 24px; }
+#scriptEditor .sheetbody { padding-top: 14px; }
 .grp { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; margin: 0; background: transparent; }
 .grp > summary { padding: 16px 0; }
 .grp .gbody { padding: 0 0 16px; }
 #about { border-bottom: 0; }
 .src { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 12px; margin-bottom: 12px; }
 #ask { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 12px; }
-.opt { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 12px 0 0; margin: 12px 0 0; }
-.or { display: none; }
+.opt { border: 0; padding: 0; margin: 12px 0 0; }
+.or { display: flex; margin: 14px 0; }
