@@ -105,3 +105,4 @@ section button + label { margin-top: 16px; }
 .opt { border: 0; padding: 0; margin: 12px 0 0; }
 .or { display: flex; margin: 14px 0; }
 #clear { padding: 0; width: 38px; min-height: 38px; background: transparent; display: grid; place-items: center; }
+.i.inline { width: 14px; height: 14px; vertical-align: -2px; margin: 0 2px; }

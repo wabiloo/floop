@@ -32,7 +32,15 @@ const runner = new Runner(key => {
 let statusTimer
 function setStatus(type, message) {
   const s = $('status')
-  s.className = type; s.textContent = message
+  s.className = type; s.replaceChildren()
+  // {undo} in a message becomes the same Font Awesome icon as the toolbar button
+  message.split('{undo}').forEach((part, i) => {
+    if (i) {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), use = document.createElementNS('http://www.w3.org/2000/svg', 'use')
+      svg.setAttribute('class', 'i inline'); use.setAttribute('href', '#i-undo'); svg.append(use); s.append(svg)
+    }
+    s.append(part)
+  })
   clearTimeout(statusTimer)
   if (message) statusTimer = setTimeout(() => { s.textContent = ''; s.className = '' }, type === 'error' ? 10000 : 5000)
 }
@@ -66,7 +74,7 @@ $('clear').onclick = () => {
   if (!ed.value) return ed.focus()
   clearTimeout(typeTimer); pushHistory()      // so ↶ brings it back
   setText('', 0, 0); pushHistory(); persistText(); ed.focus()
-  setStatus('info', 'Cleared (↶ to undo)')
+  setStatus('info', 'Cleared. Tap {undo} to undo')
 }
 $('undo').onclick = () => { pushHistory(); restore(hist.i - 1) }
 $('redo').onclick = () => restore(hist.i + 1)
