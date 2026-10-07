@@ -62,6 +62,12 @@ function updateUndo() {
 }
 let typeTimer
 ed.addEventListener('input', () => { clearTimeout(typeTimer); typeTimer = setTimeout(pushHistory, 700); persistText() })
+$('clear').onclick = () => {
+  if (!ed.value) return ed.focus()
+  clearTimeout(typeTimer); pushHistory()      // so ↶ brings it back
+  setText('', 0, 0); pushHistory(); persistText(); ed.focus()
+  setStatus('info', 'Cleared (↶ to undo)')
+}
 $('undo').onclick = () => { pushHistory(); restore(hist.i - 1) }
 $('redo').onclick = () => restore(hist.i + 1)
 function persistText() { ls.set('draft', ed.value) }
