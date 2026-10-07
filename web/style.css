@@ -92,3 +92,14 @@ section button + label { margin-top: 16px; }
 .grp .sub { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: auto; text-align: right; }
 .grp .gbody { padding: 0 14px 14px; }
 #about { border-top: 1px solid var(--line); padding-top: 0; }
+
+/* Flat lists: hairlines instead of nested cards, so content keeps the full width. */
+.sheetbody { padding: 0 16px 24px; }
+.grp { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; margin: 0; background: transparent; }
+.grp > summary { padding: 16px 0; }
+.grp .gbody { padding: 0 0 16px; }
+#about { border-bottom: 0; }
+.src { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 12px; margin-bottom: 12px; }
+#ask { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 12px; }
+.opt { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 12px 0 0; margin: 12px 0 0; }
+.or { display: none; }
