@@ -64,3 +64,5 @@ input:not(#query) { display: block; width: 100%; margin-top: 4px; padding: 10px;
 /* Keyboard open: it already covers the home-indicator area. */
 .kb #app { padding-bottom: 0; }
 .kb .sheet { padding-bottom: 0; }
+a { color: var(--accent); }
+#about { border-top: 1px solid var(--line); padding-top: 16px; }
