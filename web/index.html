@@ -23,7 +23,7 @@
     <button id="clear" aria-label="Clear text"><svg class="i"><use href="#i-clear"/></svg></button>
     <div class="hbtns">
       <button id="paste" aria-label="Paste"><svg class="i"><use href="#i-paste"/></svg></button>
-      <button id="fetch" aria-label="Fetch a URL into the editor"><svg class="i"><use href="#i-fetch"/></svg></button>
+      <button id="fetch" aria-label="Fetch URL into the editor"><svg class="i"><use href="#i-fetch"/></svg></button>
       <button id="copy" aria-label="Copy"><svg class="i"><use href="#i-copy"/></svg></button>
       <button id="again" aria-label="Run last script again" disabled><svg class="i"><use href="#i-again"/></svg></button>
       <button id="undo" aria-label="Undo" disabled><svg class="i"><use href="#i-undo"/></svg></button>
@@ -132,7 +132,7 @@
   <div class="sheet">
     <div class="sheethead"><h2>Fetch URL</h2><button id="fetchCancel">Close</button></div>
     <div class="sheetbody">
-      <p class="hint">Sends an HTTP GET and replaces the editor text with the response body. The server has to allow requests from other sites (CORS).</p>
+      <p class="hint">Tip: with a URL selected in the text (or the caret in it), the button fetches it straight away. Sends an HTTP GET and replaces the editor text with the response body. The server has to allow requests from other sites (CORS).</p>
       <label>URL
         <input id="fetchUrl" type="url" placeholder="https://…" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
       </label>

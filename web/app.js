@@ -243,32 +243,55 @@ q.addEventListener('keydown', e => {
 
 // ---------- fetch a URL into the editor ----------
 const fetchDlg = $('fetchDlg'), fetchUrl = $('fetchUrl'), fetchMsg = $('fetchMsg')
+const URL_RE = /^https?:\/\/\S+$/i
+// The URL to use without asking: the selection, else the one under the caret, else the whole text if that is a URL.
+function urlInEditor() {
+  const s = ed.selectionStart, e = ed.selectionEnd, v = ed.value
+  if (e > s) { const t = v.slice(s, e).trim(); return URL_RE.test(t) ? t : '' }
+  let a = s, b = s
+  while (a > 0 && !/\s/.test(v[a - 1])) a--
+  while (b < v.length && !/\s/.test(v[b])) b++
+  const tok = v.slice(a, b).replace(/^[<("'\[]+|[>)"'\].,;:!?]+$/g, '')
+  if (URL_RE.test(tok)) return tok
+  const all = v.trim()
+  return URL_RE.test(all) ? all : ''
+}
 function openFetch() {
-  const sel = ed.value.slice(ed.selectionStart, ed.selectionEnd).trim()
-  fetchUrl.value = /^https?:\/\/\S+$/i.test(sel) ? sel : ls.get('fetchUrl', '')
+  const url = urlInEditor()
+  if (url) return fetchInto(url, msg => setStatus('error', msg))      // a URL is there already: just go
+  showFetchDialog()
+}
+function showFetchDialog() {
+  fetchUrl.value = ls.get('fetchUrl', '')
   fetchMsg.textContent = ''; fetchMsg.className = 'hint'
   fetchDlg.hidden = false; fetchUrl.focus(); fetchUrl.select()
 }
 function closeFetch() { fetchDlg.hidden = true; if (desktop.matches) ed.focus() }
-async function doFetch() {
-  const url = fetchUrl.value.trim()
-  if (!/^https?:\/\//i.test(url)) { fetchMsg.className = 'hint error'; fetchMsg.textContent = 'Enter a full http:// or https:// URL'; return }
-  const go = $('fetchGo'); go.disabled = true
-  fetchMsg.className = 'hint'; fetchMsg.textContent = 'Fetching…'
+// GET `url` and replace the editor text with the body. `fail(message)` reports problems.
+async function fetchInto(url, fail) {
+  setStatus('info', 'Fetching…')
   try {
     const r = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(20000) })
     const body = await r.text()
-    if (!r.ok) { fetchMsg.className = 'hint error'; fetchMsg.textContent = `${r.status} ${r.statusText}`.trim() + (body ? `: ${body.slice(0, 200)}` : ''); return }
+    if (!r.ok) return fail(`${r.status} ${r.statusText}`.trim() + (body ? `: ${body.slice(0, 200)}` : ''))
     ls.set('fetchUrl', url)
     clearTimeout(typeTimer); pushHistory()
     setText(body, 0, 0); pushHistory(); persistText()
     fetchDlg.hidden = true; ed.focus()
     setStatus('success', `Fetched ${body.length.toLocaleString()} characters. Tap {undo} to go back`)
+    return true
   } catch (err) {
-    fetchMsg.className = 'hint error'
-    fetchMsg.textContent = err.name === 'TimeoutError' ? 'Timed out after 20 seconds'
-      : "Couldn't fetch it: the server may be down, or it doesn't allow requests from other sites (CORS)"
-  } finally { go.disabled = false }
+    fail(err.name === 'TimeoutError' ? 'Timed out after 20 seconds'
+      : "Couldn't fetch it: the server may be down, or it doesn't allow requests from other sites (CORS)")
+  }
+}
+async function doFetch() {
+  const url = fetchUrl.value.trim()
+  const say = (cls, m) => { fetchMsg.className = 'hint ' + cls; fetchMsg.textContent = m }
+  if (!/^https?:\/\//i.test(url)) return say('error', 'Enter a full http:// or https:// URL')
+  const go = $('fetchGo'); go.disabled = true
+  say('', 'Fetching…')
+  try { await fetchInto(url, m => say('error', m)) } finally { go.disabled = false }
 }
 $('fetch').onclick = openFetch
 $('fetchCancel').onclick = closeFetch
@@ -284,7 +307,7 @@ const SHORTCUTS = [
     run() { q.focus(); q.select() }, anywhere: true },
   { el: 'again', keys: [MOD, 'Enter'], label: 'Apply the last script again', test: e => e.key === 'Enter' && !e.shiftKey,
     run() { if (lastScript) runScript(lastScript).then(() => { if (desktop.matches) ed.focus() }); else setStatus('info', 'No script applied yet') }, anywhere: true },
-  { el: 'fetch', keys: [MOD, 'Shift', 'U'], label: 'Fetch a URL into the editor (GET)', test: e => e.key.toLowerCase() === 'u' && e.shiftKey,
+  { el: 'fetch', keys: [MOD, 'Shift', 'U'], label: 'Fetch a URL into the editor (uses a selected or caret URL, else asks)', test: e => e.key.toLowerCase() === 'u' && e.shiftKey,
     run() { openFetch() }, anywhere: true },
   { el: 'undo', keys: [MOD, 'Z'], label: 'Undo', test: e => e.key.toLowerCase() === 'z' && !e.shiftKey,
     run() { pushHistory(); restore(hist.i - 1) } },
