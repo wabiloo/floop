@@ -1,6 +1,7 @@
 // Usage: node web/build.mjs <repo-root> <out-dir>
 // Copies the web app to <out-dir> and snapshots the default script sources into
 // scripts-bundle.json so the app works offline on first launch.
+import { createHash } from 'node:crypto'
 import { cpSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -30,4 +31,9 @@ for (const src of DEFAULT_SOURCES) {
   sources[sourceKey(src)] = files
 }
 writeFileSync(join(out, 'scripts-bundle.json'), JSON.stringify({ builtAt: Date.now(), sources }))
+// Stamp the service worker with a hash of everything it caches, so each deploy gets a fresh cache.
+const hash = createHash('sha256')
+for (const p of walk(out).sort()) if (!p.endsWith('sw.js')) hash.update(p).update(readFileSync(p))
+const swPath = join(out, 'sw.js')
+writeFileSync(swPath, readFileSync(swPath, 'utf8').replace('__BUILD__', hash.digest('hex').slice(0, 12)))
 console.log(`Built ${out}: ${Object.values(sources).reduce((n, f) => n + Object.keys(f).length, 0)} script files`)
