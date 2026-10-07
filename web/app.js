@@ -14,6 +14,7 @@ let caches = {}          // sourceKey -> { files, syncedAt }
 let scripts = []
 let search = () => []
 let recent = ls.get('recent', [])
+let favs = new Set(ls.get('favs', []))   // script ids
 let lastScript = null
 // A script sees its own source's files plus every source's lib/ (so @boop/* built-ins resolve everywhere).
 const runner = new Runner(key => {
@@ -150,7 +151,20 @@ function renderResults() {
     el.setAttribute('role', 'option')
     const n = document.createElement('div'); n.className = 'n'; n.textContent = s.name
     const d = document.createElement('div'); d.className = 'd'; d.textContent = s.description
-    el.append(n, d)
+    const txt = document.createElement('div'); txt.className = 't'; txt.append(n, d)
+    const star = document.createElement('button'); star.className = 'star' + (favs.has(s.id) ? ' on' : '')
+    star.setAttribute('aria-label', 'Favourite'); star.setAttribute('aria-pressed', favs.has(s.id))
+    star.innerHTML = `<svg class="i"><use href="#i-star${favs.has(s.id) ? '-fill' : ''}"/></svg>`
+    star.addEventListener('pointerdown', e => e.preventDefault())
+    star.onclick = e => {
+      e.stopPropagation()
+      favs.has(s.id) ? favs.delete(s.id) : favs.add(s.id)
+      ls.set('favs', [...favs])
+      const on = favs.has(s.id)
+      star.classList.toggle('on', on); star.setAttribute('aria-pressed', on)
+      star.firstChild.firstChild.setAttribute('href', on ? '#i-star-fill' : '#i-star')
+    }
+    el.append(txt, star)
     // Keep the editor focused/selected: don't let the tap steal focus before we run.
     el.addEventListener('pointerdown', e => e.preventDefault())
     el.onclick = () => choose(s)

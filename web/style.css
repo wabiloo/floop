@@ -34,8 +34,12 @@ button.primary { background: var(--accent); color: var(--accent-fg); font-weight
 #scripts { border-top: 1px solid var(--line); background: var(--bg); display: flex; flex-direction: column; flex: none; }
 #results { display: flex; flex-direction: column-reverse; overflow-y: auto; height: 34vh; max-height: 34vh; -webkit-overflow-scrolling: touch; }
 .kb #results { height: 132px; }
-.item { padding: 8px 16px; border-top: 1px solid var(--line); cursor: pointer; flex: none; }
+.item { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 16px; border-top: 1px solid var(--line); cursor: pointer; flex: none; }
 .item.sel { background: var(--panel); }
+.item .t { flex: 1; min-width: 0; padding: 4px 0; }
+.star { flex: none; width: 44px; height: 44px; min-height: 44px; padding: 0; background: transparent; color: var(--muted); display: grid; place-items: center; }
+.star .i { width: 20px; height: 20px; }
+.star.on { color: #f5b301; }
 .item .n { font-weight: 600; } .item .d { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .empty { padding: 20px; text-align: center; color: var(--muted); }
 #searchrow { display: flex; align-items: center; gap: 10px; margin: 6px 12px 8px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--muted); }
