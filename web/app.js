@@ -15,6 +15,7 @@ let scripts = []
 let search = () => []
 let recent = ls.get('recent', [])
 let favs = new Set(ls.get('favs', []))   // script ids
+let favOnly = ls.get('favOnly', false)
 let lastScript = null
 // A script sees its own source's files plus every source's lib/ (so @boop/* built-ins resolve everywhere).
 const runner = new Runner(key => {
@@ -138,11 +139,12 @@ function renderResults() {
     const rec = recent.map(id => byId.get(id)).filter(Boolean)
     shown = [...rec, ...search('*').filter(s => !rec.includes(s))]
   } else shown = search(query)
+  if (favOnly) shown = shown.filter(s => favs.has(s.id))
   sel = 0
   results.replaceChildren()
   if (!shown.length) {
     const d = document.createElement('div'); d.className = 'empty'
-    d.textContent = scripts.length ? 'No matching scripts' : 'No scripts loaded: open Settings and sync'
+    d.textContent = favOnly && scripts.length ? (q.value.trim() ? 'No matching favourites' : 'No favourites yet: tap a star, or turn the filter off') : scripts.length ? 'No matching scripts' : 'No scripts loaded: open Settings and sync'
     results.append(d); return
   }
   shown.slice(0, 200).forEach((s, i) => {
@@ -163,6 +165,7 @@ function renderResults() {
       const on = favs.has(s.id)
       star.classList.toggle('on', on); star.setAttribute('aria-pressed', on)
       star.firstChild.firstChild.setAttribute('href', on ? '#i-star-fill' : '#i-star')
+      if (favOnly && !on) renderResults()
     }
     el.append(txt, star)
     // Keep the editor focused/selected: don't let the tap steal focus before we run.
@@ -183,6 +186,14 @@ function moveSel(d) {
   sel = Math.max(0, Math.min(items.length - 1, sel + d))
   items[sel].classList.add('sel'); items[sel].scrollIntoView({ block: 'nearest' })
 }
+function syncFavBtn() {
+  const b = $('favOnly')
+  b.classList.toggle('on', favOnly); b.setAttribute('aria-pressed', favOnly)
+  b.firstChild.firstChild.setAttribute('href', favOnly ? '#i-star-fill' : '#i-star')
+}
+$('favOnly').addEventListener('pointerdown', e => e.preventDefault())
+$('favOnly').onclick = () => { favOnly = !favOnly; ls.set('favOnly', favOnly); syncFavBtn(); renderResults() }
+syncFavBtn()
 q.addEventListener('input', renderResults)
 q.addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); if (shown[sel]) choose(shown[sel]) }

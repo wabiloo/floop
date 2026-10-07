@@ -30,12 +30,13 @@
     </div>
   </header>
   <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"
-            placeholder="Type or paste text, then tap Scripts…"></textarea>
+            placeholder="Type or paste text, then pick a script below…"></textarea>
   <footer id="scripts">
     <div id="results" role="listbox"></div>
-    <div id="searchrow"><svg class="i"><use href="#i-search"/></svg>
+    <div id="searchwrap"><div id="searchrow"><svg class="i"><use href="#i-search"/></svg>
       <input id="query" type="search" placeholder="Search scripts…" autocomplete="off" autocapitalize="off"
              autocorrect="off" spellcheck="false" enterkeyhint="go"></div>
+    <button id="favOnly" aria-label="Show only favourites" aria-pressed="false"><svg class="i"><use href="#i-star"/></svg></button></div>
   </footer>
 </div>
 
