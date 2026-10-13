@@ -472,9 +472,10 @@ fetchUrl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDe
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
 const MOD = isMac ? '⌘' : 'Ctrl'
 const SHORTCUTS = [
-  { el: 'query', keys: [MOD, 'K'], label: 'Search scripts (then Enter applies the top match)', test: e => e.key.toLowerCase() === 'k' && !e.shiftKey,
+  { el: 'query', keys: [MOD, 'B'], alt: [MOD, 'K'], label: 'Search scripts (then Enter applies the top match)', test: e => ['b', 'k'].includes(e.key.toLowerCase()) && !e.shiftKey,
     run() { q.focus(); q.select() }, anywhere: true },
-  { el: 'again', keys: [MOD, 'Enter'], label: 'Apply the last script again', test: e => e.key === 'Enter' && !e.shiftKey,
+  { el: 'again', keys: [MOD, 'Shift', 'B'], alt: [MOD, 'Enter'], label: 'Apply the last script again',
+    test: e => (e.key === 'Enter' && !e.shiftKey) || (e.key.toLowerCase() === 'b' && e.shiftKey),
     run() { if (lastScript) runScript(lastScript).then(() => { if (desktop.matches) ed.focus() }); else setStatus('info', 'No script applied yet') }, anywhere: true },
   { el: 'fetch', keys: [MOD, 'Shift', 'U'], label: 'Fetch a URL into the editor (uses a selected or caret URL, else asks)', test: e => e.key.toLowerCase() === 'u' && e.shiftKey,
     run() { openFetch() }, anywhere: true },

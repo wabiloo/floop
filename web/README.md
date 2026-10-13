@@ -51,7 +51,9 @@ To host your own copy: fork the repo, then **Settings → Pages → Source: GitH
 
 ### Keyboard shortcuts
 Listed in Settings → *Keyboard shortcuts* and in the button tooltips (⌘ on a Mac, Ctrl elsewhere):
-`Ctrl+K` search scripts · `Ctrl+Enter` run the last script again · `Ctrl+Z` undo · `Ctrl+Shift+Z` (or `Ctrl+Y`) redo · `Ctrl+Shift+X` clear · `Ctrl+S` save · `Ctrl+O` open · `Ctrl+Shift+U` fetch a URL.
+`Ctrl+B` (or `Ctrl+K`) search scripts · `Ctrl+Shift+B` (or `Ctrl+Enter`) run the last script again · `Ctrl+Z` undo · `Ctrl+Shift+Z` (or `Ctrl+Y`) redo · `Ctrl+Shift+X` clear · `Ctrl+S` save · `Ctrl+O` open · `Ctrl+Shift+U` fetch a URL.
+
+`⌘B` and `⇧⌘B` are the original Boop shortcuts for the script picker and "run last script". In an ordinary browser tab, `⇧⌘B` may be taken by the browser (it toggles the bookmarks bar); installed as an app, or in a window without that bar, it reaches Floop.
 
 ## Script sources
 Settings → *Script sources* lists GitHub folders (`owner/repo@branch` + folder).
