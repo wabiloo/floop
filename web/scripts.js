@@ -41,10 +41,23 @@ export async function kvSet(k, v) {
 // ---------- GitHub sync ----------
 export const sourceKey = s => `${s.repo}@${s.branch}:${s.path}`
 
-async function ghJson(url, token) {
-  const r = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-  if (!r.ok) throw new Error(`${r.status} ${r.statusText} for ${url}`)
-  return r.json()
+// Conditional GET for the repo tree. 304 means "nothing changed" (and does not count against the rate limit).
+async function ghTree(url, token, etag) {
+  const headers = {}
+  if (token) headers.Authorization = `Bearer ${token}`
+  if (etag) headers['If-None-Match'] = etag
+  const r = await fetch(url, { headers })
+  if (r.status === 304) return { notModified: true, etag }
+  if (!r.ok) {
+    const err = new Error(`${r.status} ${r.statusText} for ${url}`)
+    if (r.status === 403 || r.status === 429) {
+      err.rateLimited = true
+      const reset = +r.headers.get('x-ratelimit-reset')
+      if (reset) err.resetAt = reset * 1000
+    }
+    throw err
+  }
+  return { tree: await r.json(), etag: r.headers.get('etag') }
 }
 
 async function pool(items, n, fn) {
@@ -55,10 +68,17 @@ async function pool(items, n, fn) {
 }
 
 // Returns { files: {relpath: {sha, code}}, syncedAt }. Unchanged blobs are reused from `prev`.
-export async function fetchSource(src, token, prev, onProgress) {
+// `trees` (optional Map) lets several sources on the same repo@branch share one tree request.
+export async function fetchSource(src, token, prev, onProgress, trees = new Map()) {
   const base = src.path.replace(/^\/+|\/+$/g, '')
-  const tree = await ghJson(
-    `https://api.github.com/repos/${src.repo}/git/trees/${encodeURIComponent(src.branch)}?recursive=1`, token)
+  const url = `https://api.github.com/repos/${src.repo}/git/trees/${encodeURIComponent(src.branch)}?recursive=1`
+  const tkey = `${src.repo}@${src.branch}`
+  if (!trees.has(tkey)) trees.set(tkey, { etag: prev && prev.etag, p: ghTree(url, token, prev && prev.etag) })
+  const shared = trees.get(tkey)
+  let res = await shared.p
+  if (res.notModified && !(prev && prev.etag && prev.etag === shared.etag)) res = await ghTree(url, token)   // our copy is older than the one the 304 was for
+  if (res.notModified) return { ...prev, syncedAt: Date.now() }
+  const tree = res.tree
   const wanted = tree.tree.filter(e => e.type === 'blob' && e.path.endsWith('.js') &&
     (base === '' || e.path.startsWith(base + '/')))
   const files = {}
@@ -77,7 +97,7 @@ export async function fetchSource(src, token, prev, onProgress) {
     }
     onProgress && onProgress(++done, wanted.length)
   })
-  return { files, syncedAt: Date.now() }
+  return { files, syncedAt: Date.now(), etag: res.etag }
 }
 
 // ---------- parsing ----------

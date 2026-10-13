@@ -576,18 +576,31 @@ async function sync(manual) {
   syncing = true
   const btn = $('sync'); btn.disabled = true
   const valid = sources.filter(s => s.repo && s.repo.includes('/'))
+  // Automatic syncs skip sources checked in the last 10 minutes, to stay well inside GitHub's rate limit.
+  if (!manual && valid.length && valid.every(s => Date.now() - ((caches[sourceKey(s)] || {}).syncedAt || 0) < 10 * 60 * 1000)) { syncing = false; btn.disabled = false; return }
   const next = {}
   const errors = []
+  let limited = null, usedBundle = false
+  const trees = new Map()
   for (const src of valid) {
     const key = sourceKey(src)
     try {
       next[key] = await fetchSource(src, token, caches[key], (d, n) => {
         const msg = `Syncing ${src.repo}: ${d}/${n}`
         manual ? ($('syncInfo').textContent = msg) : setStatus('info', msg)
-      })
+      }, trees)
     } catch (e) {
-      errors.push(`${src.repo}/${src.path}: ${e.message}`)
-      if (caches[key]) next[key] = caches[key]   // keep what we had
+      if (e.rateLimited) {
+        limited = limited || e
+        // Fall back to the copy shipped with this site, unless we already hold something newer.
+        const bundled = await loadBundled()
+        const files = bundled && bundled.sources && bundled.sources[key]
+        if (files && !(caches[key] && caches[key].syncedAt >= (bundled.builtAt || 0))) { next[key] = { files, syncedAt: bundled.builtAt || 0 }; usedBundle = true }
+        else if (caches[key]) next[key] = caches[key]
+      } else {
+        errors.push(`${src.repo}/${src.path}: ${e.message}`)
+        if (caches[key]) next[key] = caches[key]   // keep what we had
+      }
     }
   }
   // Drop caches for sources that no longer exist; keep cached copy for sources that failed.
@@ -597,7 +610,11 @@ async function sync(manual) {
     rebuild()
   }
   syncing = false; btn.disabled = false
-  if (errors.length) { setStatus('error', 'Sync failed: ' + errors[0]); updateSyncInfo(errors.join('; ')) }
+  if (limited) {
+    const when = limited.resetAt ? ` Try again after ${new Date(limited.resetAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.` : ''
+    const msg = `GitHub's rate limit was reached, so ${usedBundle ? 'the scripts come from the copy bundled with the site' : 'the scripts already on this device were kept'}.${when} A token (Settings → Script sources) raises the limit.`
+    setStatus('error', msg); updateSyncInfo(msg)
+  } else if (errors.length) { setStatus('error', 'Sync failed: ' + errors[0]); updateSyncInfo(errors.join('; ')) }
   else { setStatus('success', `Synced ${scripts.length} scripts`); updateSyncInfo() }
 }
 

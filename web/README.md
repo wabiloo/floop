@@ -60,7 +60,8 @@ Settings → *Script sources* lists GitHub folders (`owner/repo@branch` + folder
 - **Defaults:** `Boop/Boop/scripts` and `Scripts` in `wabiloo/floop`.
 - **What counts as a script:** top-level `.js` files with a `/** {json} **/` header. Subfolders such as `lib/` hold modules for `require()`, and `@boop/x` resolves to `lib/x.js` from any source.
 - **Private repos:** add a token in Settings.
-- **Sync** runs at launch (when online) and on demand. Scripts are cached in IndexedDB.
+- **Sync** runs at launch (when online, at most every 10 minutes) and on demand. Scripts are cached in IndexedDB. Sources on the same repo share one request, and unchanged repos answer "304 not modified", which GitHub doesn't count against its limit.
+- **Rate limit:** GitHub allows 60 unauthenticated API requests an hour per IP address, which a shared network can exhaust. If that happens, Floop keeps the scripts it already has (or falls back to the copy bundled with the site) and says when the limit resets. A token in Settings raises the limit to 5,000 an hour.
 - **Offline first launch:** the site ships a snapshot (`scripts-bundle.json`, built from this repo at deploy time).
 
 ## Your own scripts
