@@ -110,4 +110,4 @@ node web/build.mjs . _site && npx http-server _site
 There is no server and no analytics. Your text never leaves the device, except that scripts you run can do whatever their code does. API keys and the GitHub token are stored in the browser on your phone and sent only to GitHub, Anthropic or OpenAI respectively.
 
 ## Credits
-Boop by [Ivan Mathy](https://github.com/IvanMathy/Boop) (MIT). Icons: [Font Awesome Free](https://fontawesome.com) (CC BY 4.0), inlined as an SVG sprite; script icons from [Icons8](https://icons8.com), as used by Boop. Fuzzy search: [Fuse.js](https://www.fusejs.io) (Apache 2.0).
+Boop by [Ivan Mathy](https://github.com/IvanMathy/Boop) (MIT). Icons: [Font Awesome Free](https://fontawesome.com) (CC BY 4.0), inlined as an SVG sprite; script icons from [Icons8](https://icons8.com), as used by Boop. App icon: Boop's icon recoloured with an orange gradient (master in `web/docs/icon-1024.png`). Fuzzy search: [Fuse.js](https://www.fusejs.io) (Apache 2.0).
