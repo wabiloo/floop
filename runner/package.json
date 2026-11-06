@@ -1,0 +1,12 @@
+{
+  "name": "floop-runner",
+  "version": "0.1.0",
+  "description": "Run Boop/Floop scripts headlessly in Node (no browser).",
+  "type": "module",
+  "main": "index.mjs",
+  "types": "index.d.mts",
+  "bin": { "floop": "cli.mjs" },
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node --test" },
+  "license": "MIT"
+}

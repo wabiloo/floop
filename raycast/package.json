@@ -1,0 +1,75 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "floop",
+  "title": "Floop",
+  "description": "Run Boop/Floop text-transform scripts (format JSON, Base64, hashes, sort lines…) on selected text or the clipboard.",
+  "icon": "command-icon.png",
+  "author": "wabiloo",
+  "license": "MIT",
+  "platforms": ["macOS"],
+  "categories": ["Developer Tools", "Productivity"],
+  "commands": [
+    {
+      "name": "run-script",
+      "title": "Run Floop Script",
+      "subtitle": "Floop",
+      "description": "Pick a script and run it on the selected text (or the clipboard).",
+      "mode": "view"
+    },
+    {
+      "name": "run-script-by-name",
+      "title": "Run Floop Script by Name",
+      "subtitle": "Floop",
+      "description": "Run a script on the selected text (or the clipboard) without opening a list. Bind to a hotkey or use as a Quicklink.",
+      "mode": "no-view",
+      "arguments": [
+        { "name": "script", "type": "text", "placeholder": "Script name, e.g. Format JSON", "required": true }
+      ],
+      "preferences": [
+        {
+          "name": "output",
+          "type": "dropdown",
+          "title": "Output",
+          "label": "After running",
+          "description": "What to do with the result.",
+          "required": false,
+          "default": "paste",
+          "data": [
+            { "title": "Paste over selection", "value": "paste" },
+            { "title": "Copy to clipboard", "value": "copy" }
+          ]
+        }
+      ]
+    }
+  ],
+  "preferences": [
+    {
+      "name": "floopPath",
+      "type": "directory",
+      "title": "Floop Checkout",
+      "description": "A local clone of the floop repo. Its Boop/Boop/scripts and Scripts folders are loaded.",
+      "required": false
+    },
+    {
+      "name": "extraFolders",
+      "type": "textfield",
+      "title": "Extra Script Folders",
+      "description": "Additional folders of scripts, separated by commas. Later folders override earlier ones.",
+      "required": false
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.93.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "typescript": "^5.6.0"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "lint": "ray lint",
+    "typecheck": "tsc --noEmit"
+  }
+}

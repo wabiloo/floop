@@ -12,6 +12,7 @@
 - Works offline, and syncs scripts from this repo (or any GitHub folder you add).
 - Write your own scripts in the app, import them from a link, or have Claude or ChatGPT write them. Publish them back to GitHub if you like.
 - Run scripts from other apps through deep links (for example the iOS Shortcuts app and Share Sheet).
+- Run scripts headlessly from the terminal ([`runner/`](runner/): `floop run "Format JSON"`) or from Raycast ([`raycast/`](raycast/)), in Node with no browser.
 
 Everything about the app is in **[web/README.md](web/README.md)**. The app lives in [`web/`](web/) and is deployed by [`.github/workflows/pages.yml`](.github/workflows/pages.yml). Your own scripts go in [`Scripts/`](Scripts/).
 
