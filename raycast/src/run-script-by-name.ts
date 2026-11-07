@@ -6,6 +6,7 @@ import {
   showToast,
   Toast,
 } from "@raycast/api";
+import { fileForAlias, loadAliases } from "./aliases";
 import { getInput } from "./input";
 import { findScript, loadAll, runScript } from "./scripts";
 
@@ -14,7 +15,10 @@ export default async function Command(
 ) {
   const { output } = getPreferenceValues<Preferences.RunScriptByName>();
   const scripts = loadAll();
-  const script = findScript(scripts, props.arguments.script);
+  const aliasFile = fileForAlias(await loadAliases(), props.arguments.script);
+  const script =
+    (aliasFile && scripts.find((s) => s.file === aliasFile)) ||
+    findScript(scripts, props.arguments.script);
   if (!script) {
     return showToast({
       style: Toast.Style.Failure,
