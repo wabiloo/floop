@@ -17,6 +17,23 @@ import { loadAliases, saveAliases, type Aliases } from "./aliases";
 import { getInput, type Input } from "./input";
 import { loadAll, runScript, type Script } from "./scripts";
 
+/** Render text at normal size: escape markdown, keep line breaks and indentation. */
+function plainMarkdown(text: string): string {
+  return text
+    .split("\n")
+    .map((line) => {
+      const indent = line
+        .match(/^[ \t]*/)![0]
+        .replace(/\t/g, "    ")
+        .replace(/ /g, "\u00a0");
+      const body = line
+        .slice(line.match(/^[ \t]*/)![0].length)
+        .replace(/[\\`*_{}[\]()#+\-.!|<>~$&]/g, "\\$&");
+      return `${indent}${body || "\u00a0"}`;
+    })
+    .join("  \n");
+}
+
 function ResultView({ script, input }: { script: Script; input: Input }) {
   const result = useMemo(
     () => runScript(script, { fullText: input.text }),
@@ -25,13 +42,14 @@ function ResultView({ script, input }: { script: Script; input: Input }) {
   const notes = result.messages
     .map((m) => `${m.type === "error" ? "⚠️" : "ℹ️"} ${m.message}`)
     .join("\n\n");
+  const [mono, setMono] = useState(false);
   const fence = "`".repeat(
     Math.max(3, ...(result.text.match(/`+/g) ?? []).map((s) => s.length + 1)),
   );
   return (
     <Detail
       navigationTitle={script.name}
-      markdown={`${notes ? notes + "\n\n" : ""}${fence}\n${result.text}\n${fence}`}
+      markdown={`${notes ? notes + "\n\n" : ""}${mono ? `${fence}\n${result.text}\n${fence}` : plainMarkdown(result.text)}`}
       actions={
         <ActionPanel>
           {!result.failed && (
@@ -49,6 +67,12 @@ function ResultView({ script, input }: { script: Script; input: Input }) {
               <Action.CopyToClipboard
                 title="Copy Result"
                 content={result.text}
+              />
+              <Action
+                title={mono ? "Normal Size Text" : "Monospace (Code Block)"}
+                icon={Icon.Text}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "m" }}
+                onAction={() => setMono(!mono)}
               />
             </>
           )}
