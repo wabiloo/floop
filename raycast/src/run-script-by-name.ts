@@ -18,10 +18,11 @@ export default async function Command(
     (aliasFile && scripts.find((s) => s.file === aliasFile)) ||
     findScript(scripts, props.arguments.script);
   if (!script) {
-    return showToast({
+    await showToast({
       style: Toast.Style.Failure,
       title: `No script matching "${props.arguments.script}"`,
     });
+    return;
   }
-  return runAndOutput(script, output);
+  await runAndOutput(script, output);
 }

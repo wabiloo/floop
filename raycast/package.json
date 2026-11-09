@@ -2,7 +2,7 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "floop",
   "title": "Floop",
-  "description": "Run Boop/Floop text-transform scripts (format JSON, Base64, hashes, sort lines…) on selected text or the clipboard.",
+  "description": "Run Boop/Floop text-transform scripts (format JSON, Base64, hashes, sort lines\u2026) on selected text or the clipboard.",
   "icon": "command-icon.png",
   "author": "wabiloo",
   "license": "MIT",
@@ -56,195 +56,6 @@
           ]
         }
       ]
-    },
-    {
-      "name": "script-base64encode",
-      "title": "Floop: Base64 Encode",
-      "subtitle": "Floop",
-      "description": "Encodes your text to Base64",
-      "mode": "no-view",
-      "preferences": [
-        {
-          "name": "output",
-          "type": "dropdown",
-          "title": "Output",
-          "label": "After running",
-          "required": false,
-          "default": "paste",
-          "data": [
-            {
-              "title": "Paste over selection",
-              "value": "paste"
-            },
-            {
-              "title": "Copy to clipboard",
-              "value": "copy"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "script-base64decode",
-      "title": "Floop: Base64 Decode",
-      "subtitle": "Floop",
-      "description": "Decodes your text from Base64",
-      "mode": "no-view",
-      "preferences": [
-        {
-          "name": "output",
-          "type": "dropdown",
-          "title": "Output",
-          "label": "After running",
-          "required": false,
-          "default": "paste",
-          "data": [
-            {
-              "title": "Paste over selection",
-              "value": "paste"
-            },
-            {
-              "title": "Copy to clipboard",
-              "value": "copy"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "script-formatjson",
-      "title": "Floop: Format JSON",
-      "subtitle": "Floop",
-      "description": "Cleans and format JSON documents.",
-      "mode": "no-view",
-      "preferences": [
-        {
-          "name": "output",
-          "type": "dropdown",
-          "title": "Output",
-          "label": "After running",
-          "required": false,
-          "default": "paste",
-          "data": [
-            {
-              "title": "Paste over selection",
-              "value": "paste"
-            },
-            {
-              "title": "Copy to clipboard",
-              "value": "copy"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "script-minifyjson",
-      "title": "Floop: Minify JSON",
-      "subtitle": "Floop",
-      "description": "Cleans and minifies JSON documents.",
-      "mode": "no-view",
-      "preferences": [
-        {
-          "name": "output",
-          "type": "dropdown",
-          "title": "Output",
-          "label": "After running",
-          "required": false,
-          "default": "paste",
-          "data": [
-            {
-              "title": "Paste over selection",
-              "value": "paste"
-            },
-            {
-              "title": "Copy to clipboard",
-              "value": "copy"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "script-urlencode",
-      "title": "Floop: URL Encode",
-      "subtitle": "Floop",
-      "description": "Encodes URL entities in your text.",
-      "mode": "no-view",
-      "preferences": [
-        {
-          "name": "output",
-          "type": "dropdown",
-          "title": "Output",
-          "label": "After running",
-          "required": false,
-          "default": "paste",
-          "data": [
-            {
-              "title": "Paste over selection",
-              "value": "paste"
-            },
-            {
-              "title": "Copy to clipboard",
-              "value": "copy"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "script-urldecode",
-      "title": "Floop: URL Decode",
-      "subtitle": "Floop",
-      "description": "Decodes URL entities in your text.",
-      "mode": "no-view",
-      "preferences": [
-        {
-          "name": "output",
-          "type": "dropdown",
-          "title": "Output",
-          "label": "After running",
-          "required": false,
-          "default": "paste",
-          "data": [
-            {
-              "title": "Paste over selection",
-              "value": "paste"
-            },
-            {
-              "title": "Copy to clipboard",
-              "value": "copy"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "script-sha256",
-      "title": "Floop: SHA256 Hash",
-      "subtitle": "Floop",
-      "description": "Computes the SHA256 hash of your text (Hex encoded)",
-      "mode": "no-view",
-      "preferences": [
-        {
-          "name": "output",
-          "type": "dropdown",
-          "title": "Output",
-          "label": "After running",
-          "required": false,
-          "default": "paste",
-          "data": [
-            {
-              "title": "Paste over selection",
-              "value": "paste"
-            },
-            {
-              "title": "Copy to clipboard",
-              "value": "copy"
-            }
-          ]
-        }
-      ]
     }
   ],
   "preferences": [
@@ -275,7 +86,6 @@
     "build": "ray build -e dist",
     "dev": "ray develop",
     "lint": "ray lint",
-    "typecheck": "tsc --noEmit",
-    "generate": "node tools/generate-commands.mjs"
+    "typecheck": "tsc --noEmit"
   }
 }

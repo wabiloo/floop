@@ -6,18 +6,20 @@ import { runScript, type Script } from "./scripts";
 export async function runAndOutput(script: Script, output: string | undefined) {
   const input = await getInput();
   if (!input) {
-    return showToast({
+    await showToast({
       style: Toast.Style.Failure,
       title: "Select or copy some text first",
     });
+    return;
   }
   const r = runScript(script, { fullText: input.text });
   if (r.failed) {
-    return showToast({
+    await showToast({
       style: Toast.Style.Failure,
       title: script.name,
       message: r.messages.at(-1)?.message,
     });
+    return;
   }
   if (output === "copy") await Clipboard.copy(r.text);
   else await Clipboard.paste(r.text);
