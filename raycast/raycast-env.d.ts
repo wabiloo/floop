@@ -25,6 +25,41 @@ declare namespace Preferences {
   /** Output - What to do with the result. */
   "output": "paste" | "copy"
 }
+  /** Preferences accessible in the `script-base64encode` command */
+  export type ScriptBase64Encode = ExtensionPreferences & {
+  /** Output - undefined */
+  "output": "paste" | "copy"
+}
+  /** Preferences accessible in the `script-base64decode` command */
+  export type ScriptBase64Decode = ExtensionPreferences & {
+  /** Output - undefined */
+  "output": "paste" | "copy"
+}
+  /** Preferences accessible in the `script-formatjson` command */
+  export type ScriptFormatjson = ExtensionPreferences & {
+  /** Output - undefined */
+  "output": "paste" | "copy"
+}
+  /** Preferences accessible in the `script-minifyjson` command */
+  export type ScriptMinifyjson = ExtensionPreferences & {
+  /** Output - undefined */
+  "output": "paste" | "copy"
+}
+  /** Preferences accessible in the `script-urlencode` command */
+  export type ScriptUrlencode = ExtensionPreferences & {
+  /** Output - undefined */
+  "output": "paste" | "copy"
+}
+  /** Preferences accessible in the `script-urldecode` command */
+  export type ScriptUrldecode = ExtensionPreferences & {
+  /** Output - undefined */
+  "output": "paste" | "copy"
+}
+  /** Preferences accessible in the `script-sha256` command */
+  export type ScriptSha256 = ExtensionPreferences & {
+  /** Output - undefined */
+  "output": "paste" | "copy"
+}
 }
 
 declare namespace Arguments {
@@ -35,5 +70,19 @@ declare namespace Arguments {
   /** Script name, e.g. Format JSON */
   "script": string
 }
+  /** Arguments passed to the `script-base64encode` command */
+  export type ScriptBase64Encode = {}
+  /** Arguments passed to the `script-base64decode` command */
+  export type ScriptBase64Decode = {}
+  /** Arguments passed to the `script-formatjson` command */
+  export type ScriptFormatjson = {}
+  /** Arguments passed to the `script-minifyjson` command */
+  export type ScriptMinifyjson = {}
+  /** Arguments passed to the `script-urlencode` command */
+  export type ScriptUrlencode = {}
+  /** Arguments passed to the `script-urldecode` command */
+  export type ScriptUrldecode = {}
+  /** Arguments passed to the `script-sha256` command */
+  export type ScriptSha256 = {}
 }
 

@@ -6,8 +6,13 @@
   "icon": "command-icon.png",
   "author": "wabiloo",
   "license": "MIT",
-  "platforms": ["macOS"],
-  "categories": ["Developer Tools", "Productivity"],
+  "platforms": [
+    "macOS"
+  ],
+  "categories": [
+    "Developer Tools",
+    "Productivity"
+  ],
   "commands": [
     {
       "name": "run-script",
@@ -23,7 +28,12 @@
       "description": "Run a script on the selected text (or the clipboard) without opening a list. Bind to a hotkey or use as a Quicklink.",
       "mode": "no-view",
       "arguments": [
-        { "name": "script", "type": "text", "placeholder": "Script name, e.g. Format JSON", "required": true }
+        {
+          "name": "script",
+          "type": "text",
+          "placeholder": "Script name, e.g. Format JSON",
+          "required": true
+        }
       ],
       "preferences": [
         {
@@ -35,8 +45,203 @@
           "required": false,
           "default": "paste",
           "data": [
-            { "title": "Paste over selection", "value": "paste" },
-            { "title": "Copy to clipboard", "value": "copy" }
+            {
+              "title": "Paste over selection",
+              "value": "paste"
+            },
+            {
+              "title": "Copy to clipboard",
+              "value": "copy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "script-base64encode",
+      "title": "Floop: Base64 Encode",
+      "subtitle": "Floop",
+      "description": "Encodes your text to Base64",
+      "mode": "no-view",
+      "preferences": [
+        {
+          "name": "output",
+          "type": "dropdown",
+          "title": "Output",
+          "label": "After running",
+          "required": false,
+          "default": "paste",
+          "data": [
+            {
+              "title": "Paste over selection",
+              "value": "paste"
+            },
+            {
+              "title": "Copy to clipboard",
+              "value": "copy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "script-base64decode",
+      "title": "Floop: Base64 Decode",
+      "subtitle": "Floop",
+      "description": "Decodes your text from Base64",
+      "mode": "no-view",
+      "preferences": [
+        {
+          "name": "output",
+          "type": "dropdown",
+          "title": "Output",
+          "label": "After running",
+          "required": false,
+          "default": "paste",
+          "data": [
+            {
+              "title": "Paste over selection",
+              "value": "paste"
+            },
+            {
+              "title": "Copy to clipboard",
+              "value": "copy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "script-formatjson",
+      "title": "Floop: Format JSON",
+      "subtitle": "Floop",
+      "description": "Cleans and format JSON documents.",
+      "mode": "no-view",
+      "preferences": [
+        {
+          "name": "output",
+          "type": "dropdown",
+          "title": "Output",
+          "label": "After running",
+          "required": false,
+          "default": "paste",
+          "data": [
+            {
+              "title": "Paste over selection",
+              "value": "paste"
+            },
+            {
+              "title": "Copy to clipboard",
+              "value": "copy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "script-minifyjson",
+      "title": "Floop: Minify JSON",
+      "subtitle": "Floop",
+      "description": "Cleans and minifies JSON documents.",
+      "mode": "no-view",
+      "preferences": [
+        {
+          "name": "output",
+          "type": "dropdown",
+          "title": "Output",
+          "label": "After running",
+          "required": false,
+          "default": "paste",
+          "data": [
+            {
+              "title": "Paste over selection",
+              "value": "paste"
+            },
+            {
+              "title": "Copy to clipboard",
+              "value": "copy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "script-urlencode",
+      "title": "Floop: URL Encode",
+      "subtitle": "Floop",
+      "description": "Encodes URL entities in your text.",
+      "mode": "no-view",
+      "preferences": [
+        {
+          "name": "output",
+          "type": "dropdown",
+          "title": "Output",
+          "label": "After running",
+          "required": false,
+          "default": "paste",
+          "data": [
+            {
+              "title": "Paste over selection",
+              "value": "paste"
+            },
+            {
+              "title": "Copy to clipboard",
+              "value": "copy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "script-urldecode",
+      "title": "Floop: URL Decode",
+      "subtitle": "Floop",
+      "description": "Decodes URL entities in your text.",
+      "mode": "no-view",
+      "preferences": [
+        {
+          "name": "output",
+          "type": "dropdown",
+          "title": "Output",
+          "label": "After running",
+          "required": false,
+          "default": "paste",
+          "data": [
+            {
+              "title": "Paste over selection",
+              "value": "paste"
+            },
+            {
+              "title": "Copy to clipboard",
+              "value": "copy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "script-sha256",
+      "title": "Floop: SHA256 Hash",
+      "subtitle": "Floop",
+      "description": "Computes the SHA256 hash of your text (Hex encoded)",
+      "mode": "no-view",
+      "preferences": [
+        {
+          "name": "output",
+          "type": "dropdown",
+          "title": "Output",
+          "label": "After running",
+          "required": false,
+          "default": "paste",
+          "data": [
+            {
+              "title": "Paste over selection",
+              "value": "paste"
+            },
+            {
+              "title": "Copy to clipboard",
+              "value": "copy"
+            }
           ]
         }
       ]
@@ -70,6 +275,7 @@
     "build": "ray build -e dist",
     "dev": "ray develop",
     "lint": "ray lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "generate": "node tools/generate-commands.mjs"
   }
 }

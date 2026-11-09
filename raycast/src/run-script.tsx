@@ -10,7 +10,6 @@ import {
   showHUD,
   showToast,
   Toast,
-  environment,
   useNavigation,
 } from "@raycast/api";
 import { useEffect, useMemo, useState } from "react";
@@ -218,14 +217,6 @@ export default function Command() {
                     />
                   </>
                 )}
-                <Action.CreateQuicklink
-                  title="Create Quicklink…"
-                  shortcut={{ modifiers: ["cmd", "shift"], key: "l" }}
-                  quicklink={{
-                    name: s.name,
-                    link: `raycast://extensions/${environment.ownerOrAuthorName}/${environment.extensionName}/run-script-by-name?arguments=${encodeURIComponent(JSON.stringify({ script: s.name }))}`,
-                  }}
-                />
                 <Action.Push
                   title="Set Alias…"
                   icon={Icon.Tag}

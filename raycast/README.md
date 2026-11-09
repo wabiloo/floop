@@ -5,7 +5,7 @@ Run [Floop](../README.md) / [Boop](https://github.com/IvanMathy/Boop) scripts fr
 ## Commands
 - **Run Floop Script**: pick a script from the list. It runs on the selected text (or the clipboard if nothing is selected).
   `↵` shows the result · `⌘↵` pastes over the selection · `⇧⌘↵` copies.
-  `⇧⌘A` sets aliases for the highlighted script (e.g. `b64`); they show as tags, work as search terms in the list, and are accepted by the by-name command. Aliases are stored in Raycast's local storage. To get an alias at Raycast's root, use **Create Quicklink…** (`⇧⌘L`): it opens Raycast's Quicklink form pre-filled to run that script on the selection, and you type the alias there.
+  `⇧⌘A` sets aliases for the highlighted script (e.g. `b64`); they show as tags, work as search terms in the list, and are accepted by the by-name command. Aliases are stored in Raycast's local storage.
 - **Run Floop Script by Name**: no UI. Takes the script name as an argument (fuzzy: `format json`, `b64enc`…), runs it and pastes (or copies) the result. Give it a hotkey, or make Quicklinks that pre-fill the argument (one per script you use often).
 
 ## Install (from a checkout)
@@ -21,3 +21,9 @@ Raycast must have Accessibility access to read the selection and paste.
 - Scripts run in a `vm` sandbox with a 15 s timeout, with the same `ScriptExecution` API as Floop (`text`, `fullText`, `selection`, `insert`, `postInfo`, `postError`) and `require('@boop/…')`.
 - Multi-cursor isn't supported (same as Floop): the whole text is passed as `fullText`.
 - Untested inside Raycast itself (macOS only); the runner has tests (`cd ../runner && npm test`).
+
+## Favourites at the root (aliases and hotkeys)
+Raycast only lets you set an alias or hotkey on a *command*, not on a list row. So frequently used scripts can be promoted to real commands ("Floop: Base64 Encode"…):
+1. Edit [`favourites.json`](favourites.json) (script names or file names).
+2. `npm run generate` (rewrites the `script-*` commands in `package.json` and `src/`), and keep `npm run dev` running or `npm run build` again.
+3. In Raycast → Settings → Extensions → Floop, set an alias/hotkey on each command (e.g. `b64`). Each command has an *Output* preference: paste over the selection (default) or copy.
