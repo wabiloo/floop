@@ -5,7 +5,7 @@ Run [Floop](../README.md) / [Boop](https://github.com/IvanMathy/Boop) scripts fr
 ## Commands
 - **Run Floop Script**: pick a script from the list. It runs on the selected text (or the clipboard if nothing is selected).
   `↵` shows the result · `⌘↵` pastes over the selection · `⇧⌘↵` copies.
-  `⌘K` sets aliases for the highlighted script (e.g. `b64`); they show as tags, work as search terms in the list, and are accepted by the by-name command. Aliases are stored in Raycast's local storage.
+  `⇧⌘A` sets aliases for the highlighted script (e.g. `b64`); they show as tags, work as search terms in the list, and are accepted by the by-name command. Aliases are stored in Raycast's local storage. To get an alias at Raycast's root, use **Create Quicklink…** (`⇧⌘L`): it opens Raycast's Quicklink form pre-filled to run that script on the selection, and you type the alias there.
 - **Run Floop Script by Name**: no UI. Takes the script name as an argument (fuzzy: `format json`, `b64enc`…), runs it and pastes (or copies) the result. Give it a hotkey, or make Quicklinks that pre-fill the argument (one per script you use often).
 
 ## Install (from a checkout)
